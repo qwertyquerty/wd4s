@@ -38,7 +38,9 @@ class Pools():
             pools.append(Pools(i, []))
         
         for i,player in enumerate(players):
-            pools[i % len(pools)].players.append(player)
+            p = Players()
+            p.id = "TBD"
+            pools[i % len(pools)].players.append(p)
         
         return pools
 
