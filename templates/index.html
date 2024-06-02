@@ -1,0 +1,141 @@
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="static/css/brackets-viewer.min.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.js"></script>
+    <script src="static/brackets-manager.js"></script>
+
+    <title>Wolfdash 4 Stats</title>
+
+    <link rel="stylesheet" href="static/css/dark.css" />
+</head>
+
+<body>
+    <image src="static/wolfdash.png" class="logo"></image>
+    
+    <div id="seeding" class="brackets-viewer" style="display:inline-block;">
+        <h1>Seeding Phase</h1>
+        <section class="bracket" style="display:inline-block; float: left; margin-right: 40px;">
+            <h2>Seeding Race</h2>
+            <div class="rounds">
+                <article class="round">
+                    <div class="match">
+                        <div class="opponents">
+                            {% for run in Runs.get_seeding_runs() %}
+                            <div class="participant" data-participant-id="{{ run.player }}" title="1">
+                                <div class="name">
+                                    <span>#{{ loop.index }} </span>{{ run.player }}
+                                </div>
+                                <div class="result">
+                                    {{ "DNF" if run.dnf() else run.format_time() }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <section class="bracket" style="display:inline-block;">
+            <h2>Pooling Races</h2>
+            
+                {% for pool in Pools.get_pools() %}
+                    {% if loop.index0 % 4 == 0 %}<div class="rounds">{% endif %}
+                        <article class="round">
+                            <h3>Pool {{ loop.index }}</h3>
+                            <div class="match">
+                                <div class="opponents">
+                                    {% for player in pool.players %}
+                                    <div class="participant" data-participant-id="0">
+                                        <div class="name"><span>{{ "#" + (pool.rank(player)|string) if pool.rank(player) else "" }} </span>{{ player.id }}</div><div class="result">-</div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </article>
+                        {% if loop.index == 4 %}
+                            <article class="round">
+                                <h3>Last Chance Pool</h3>
+                                <div class="match" data-match-id="0" data-match-status="2">
+                                    <div class="opponents">
+                                        {% for i in range(Pools.get_pools() | length) %}
+                                        <div class="participant" data-participant-id="0" title="1">
+                                            <div class="name hint"><span> </span>#3 of pool {{ loop.index }}</div><div class="result">{{ pool.time(player) if pool.time(player) else "-" }}</div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </article>
+                        {% endif %}
+                    {% if (loop.index0) % 4 == 3 %}</div>{% endif %}
+                {% endfor %}
+        </section>
+    </div>
+
+    <div id="brackets" class="brackets-viewer">
+    </div>
+
+    <script>
+        (async () => {
+            await window.bracketsManager.create.stage({
+                tournamentId: 0,
+                name: 'Main Bracket',
+                type: 'double_elimination',
+                seeding: [
+                    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"
+                ],
+                settings: { grandFinal: 'single' },
+            });
+    
+            await window.bracketsManager.create.stage({
+                tournamentId: 1,
+                name: 'Redemption Bracket',
+                type: 'double_elimination',
+                seeding: [
+                    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"
+                ],
+                settings: { grandFinal: 'single' },
+            });
+
+            await window.bracketsManager.create.stage({
+                tournamentId: 2,
+                name: 'Final Bracket',
+                type: 'single_elimination',
+                seeding: ["1", "2"],
+                settings: { grandFinal: 'single' },
+            });
+
+            let main_bracket = await window.bracketsManager.get.stageData(0);
+
+            window.bracketsViewer.render({
+                stages: main_bracket.stage,
+                matches: main_bracket.match,
+                matchGames: main_bracket.match_game,
+                participants: main_bracket.participant
+            }, {selector: "#brackets"});
+
+            let red_bracket = await window.bracketsManager.get.stageData(1);
+
+            window.bracketsViewer.render({
+                stages: red_bracket.stage,
+                matches: red_bracket.match,
+                matchGames: red_bracket.match_game,
+                participants: red_bracket.participant
+            }, {selector: "#brackets"});
+
+            let final_bracket = await window.bracketsManager.get.stageData(2);
+
+            window.bracketsViewer.render({
+                stages: final_bracket.stage,
+                matches: final_bracket.match,
+                matchGames: final_bracket.match_game,
+                participants: final_bracket.participant
+            }, {selector: "#brackets"});
+        })();
+
+    </script>
+</body>
+
+</html>

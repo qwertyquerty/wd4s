@@ -1,0 +1,62 @@
+@font-face {
+    font-family: hyliaserif;
+    src: url("hyliaserif.otf") format("opentype");
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
+html {
+    background-color: #111310;
+}
+
+body {
+    padding: 50px;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto;
+    width: 30%;
+    min-width: 300px;
+}
+
+.brackets-viewer h1 {
+    color: #de2c26 !important;
+    font-family: hyliaserif !important;
+    font-size: 3em !important;
+}
+
+.brackets-viewer .participant .name {
+    width: 70% !important;
+}
+
+.result {
+    width: 30% !important;
+}
+
+.brackets-viewer {
+    /* Colors */
+    --primary-background: #111310;
+    --secondary-background: #303030;
+    --match-background: var(--primary-background);
+    --font-color: #d8e8ef;
+    --win-color: #50b649;
+    --loss-color: #e61a1a;
+    --label-color: grey;
+    --hint-color: #a7a7a7;
+    --connector-color: #DDDDDD;
+    --border-color: #DDAB54;
+    --border-hover-color: #b6b5b5;
+  
+    /* Sizes */
+    --text-size: 12px;
+    --round-margin: 40px;
+    --match-width: 200px;
+    --match-horizontal-padding: 8px;
+    --match-vertical-padding: 6px;
+    --connector-border-width: 2px;
+    --match-border-width: 1px;
+    --match-border-radius: 0.3em;
+}
