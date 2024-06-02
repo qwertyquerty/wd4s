@@ -1,3 +1,34 @@
+.brackets-viewer, * {
+    /* Colors */
+    --primary-background: #111310;
+    --secondary-background: #303030;
+    --match-background: var(--primary-background);
+    --font-color: #d8e8ef;
+    --win-color: #50b649;
+    --loss-color: #de2c26;
+    --label-color: grey;
+    --hint-color: #a7a7a7;
+    --connector-color: #DDDDDD;
+    --border-color: #DDAB54;
+    --border-hover-color: #b6b5b5;
+  
+    /* Sizes */
+    --text-size: 12px;
+    --round-margin: 40px;
+    --match-width: 200px;
+    --match-horizontal-padding: 8px;
+    --match-vertical-padding: 6px;
+    --connector-border-width: 2px;
+    --match-border-width: 1px;
+    --match-border-radius: 0.3em;
+}
+
+body {
+    font-size: var(--text-size);
+    color: var(--font-color);
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
 @font-face {
     font-family: hyliaserif;
     src: url("hyliaserif.otf") format("opentype");
@@ -5,6 +36,42 @@
 
 *::-webkit-scrollbar {
     display: none;
+}
+
+table {
+    width: 80%;
+    margin: 40px auto;
+    border-radius: var(--match-border-radius);
+    border-collapse: collapse;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px  var(--label-color);
+}
+
+th, td {
+    border: 1px solid var(--label-color);
+    padding: var(--match-vertical-padding) var(--match-horizontal-padding);
+}
+
+nav {
+    text-align: center;
+    display: block;
+}
+
+a {
+    color: var(--border-color);
+}
+
+nav a {
+    display: inline;
+    margin: 10px;
+    color: var(--loss-color) !important;
+    font-family: hyliaserif !important;
+    font-size: 2.5em !important;
+    font-weight: normal;
+}
+
+.active {
+    color: #DDAB54 !important;
 }
 
 html {
@@ -22,10 +89,11 @@ body {
     min-width: 300px;
 }
 
-.brackets-viewer h1 {
-    color: #de2c26 !important;
+h1 {
+    color: var(--loss-color) !important;
     font-family: hyliaserif !important;
     font-size: 3em !important;
+    font-weight: normal;
 }
 
 .brackets-viewer .participant .name {
@@ -34,29 +102,4 @@ body {
 
 .result {
     width: 30% !important;
-}
-
-.brackets-viewer {
-    /* Colors */
-    --primary-background: #111310;
-    --secondary-background: #303030;
-    --match-background: var(--primary-background);
-    --font-color: #d8e8ef;
-    --win-color: #50b649;
-    --loss-color: #e61a1a;
-    --label-color: grey;
-    --hint-color: #a7a7a7;
-    --connector-color: #DDDDDD;
-    --border-color: #DDAB54;
-    --border-hover-color: #b6b5b5;
-  
-    /* Sizes */
-    --text-size: 12px;
-    --round-margin: 40px;
-    --match-width: 200px;
-    --match-horizontal-padding: 8px;
-    --match-vertical-padding: 6px;
-    --connector-border-width: 2px;
-    --match-border-width: 1px;
-    --match-border-radius: 0.3em;
 }

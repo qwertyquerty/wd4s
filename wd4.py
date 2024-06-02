@@ -68,16 +68,30 @@ class Runs(BaseModel):
         )
 
     def format_time(self):
-        return str(timedelta(seconds=self.time))
+        return str(timedelta(seconds=self.time)) if not self.dnf() else "DNF"
+    
+    def format_phase(self):
+        return ["Seeding", "Pooling", "Bracket"][self.phase]
 
     def dnf(self):
         return self.flags & RUN_FLAG_DNF
+
+    def pb(self):
+        return self.flags & RUN_FLAG_PB
 
 app = Flask(__name__)
 
 @app.route("/")
 def page_index():
     return render_template("index.html", **globals())
+
+@app.route("/runs")
+def page_runs():
+    return render_template("runs.html", **globals())
+
+@app.route("/stats")
+def page_stats():
+    return render_template("stats.html", **globals())
 
 @app.route('/static/<path:path>')
 def page_static(path):

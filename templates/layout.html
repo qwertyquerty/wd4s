@@ -1,0 +1,42 @@
+{% macro link_name(name) -%}<a href="https://speedrun.com/User/{{ name }}">{{ name }}</a>{% endmacro %}
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="static/css/brackets-viewer.min.css" />
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.js"></script>
+        <script src="static/brackets-manager.js"></script>
+
+        <title>Wolfdash 4 Stats</title>
+
+        <link rel="stylesheet" href="static/css/dark.css" />
+
+        <meta property="og:title" content="Wolfdash 4 Stats" />
+        <meta property="og:image" content="static/wolfdash.png" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="Twilight Princess Community" />
+
+        {% block head %}
+        {% endblock %}    
+    </head>
+
+    <body>
+        <image src="static/wolfdash.png" class="logo"></image>
+        
+        <nav>
+            <a href="/runs" class="{% if url_for(request.endpoint) == '/runs' %}active{% endif %}">Runs</a>
+            <a>-</a>
+            <a href="/" class="{% if url_for(request.endpoint) == '/' %}active{% endif %}">Bracket</a>
+            <a>-</a>
+            <a href="/stats" class="{% if url_for(request.endpoint) == '/stats' %}active{% endif %}">Stats</a>
+        </nav>
+
+        {% block content %}
+        {% endblock %}
+        <footer class="footer">
+            <div style="text-align: center;">
+                <strong>WD4 Stats</strong> website made with &lt;3 by <a href="https://github.com/qwertyquerty">qwerty</a>
+            </div>
+        </footer>
+    </body>
+</html>

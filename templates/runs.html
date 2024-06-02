@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Player</th>
+            <th>Time</th>
+            <th>Date</th>
+            <th>Phase</th>
+        </tr>
+        {% for run in Runs.select().order_by(Runs.id.asc()) %}
+        <tr>
+            <td style="color: var(--hint-color);">
+                {{ run.id }}
+            </td>
+            <td>
+                {{ link_name(run.player) }}
+            </td>
+            <td {% if run.pb() %}style="color: var(--win-color)"{% endif %}>
+                {{ run.format_time() }} {% if run.pb() %}<span style="color: var(--border-color);">(PB!)</span>{% endif %}
+            </td>
+            <td>
+                {{ run.date | string }}
+            </td>
+            <td>
+                {{ run.format_phase() }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
