@@ -1,7 +1,38 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<br><br>
-<h2 style="display: block; text-align: center;">Stats will be here when more data is available!</h2>
-<br><br>
+    <br><br>
+    <h2 style="text-align:center;">Player Stats</h2>
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Avg Race Time</th>
+            <th>Race Variance</th>
+            <th>Completion</th>
+            <th>Personal Best</th>
+        </tr>
+        {% for stats,player in Players.stats_leaderboard() %}
+        <tr>
+            <td style="color: var(--hint-color);">
+                {{ loop.index }}
+            </td>
+            <td>
+                {{ link_name(player.id) }}
+            </td>
+            <td>
+                {{ format_time(stats["mean"]) if stats["mean"] else "-" }}
+            </td>
+            <td>
+                {{ format_time(stats["std"]) if stats["std"] else "-" }}
+            </td>
+            <td>
+                {{ ((stats["completion"])*100)|int|string + "%" if stats["completion"] != None else "-" }}
+            </td>
+            <td>
+                {{ format_time(player.pb) }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, send_from_directory
 from datetime import timedelta, date
-
+import numpy as np
 from peewee import *
 
 RUN_FLAG_DNF = 1 << 0
@@ -18,6 +18,10 @@ db.connect()
 class BaseModel(Model):
     class Meta:
         database = db
+
+def format_time(time):
+    return str(timedelta(seconds=time))
+    
 
 class Pools():
     def __init__(self, id, players):
@@ -50,6 +54,24 @@ class Players(BaseModel):
     twitch = CharField(32)
     flags = IntegerField()
 
+    def runs(self, finished=False):
+        if finished:
+            return Runs.select().where((Runs.flags.bin_and(RUN_FLAG_DNF)) == 0, Runs.player == self.id)
+        else:
+            return Runs.select().where(Runs.player == self.id)
+    
+    def stats(self):
+        runs = list(self.runs(finished=True))
+        return {
+            "mean": sum([run.time for run in runs])/len(runs) if len(runs) else None,
+            "std": np.std([run.time for run in runs]) if len(runs) else None,
+            "completion": len(runs)/self.runs().count() if self.runs().count() else None
+        }
+    
+    @classmethod
+    def stats_leaderboard(cls):
+        return sorted([(player.stats(),player) for player in Players.select()], key=lambda p: p[0]["mean"] or float('infinity'))
+
 class Runs(BaseModel):
     player = CharField(32)
     time = FloatField()
@@ -68,7 +90,7 @@ class Runs(BaseModel):
         )
 
     def format_time(self):
-        return str(timedelta(seconds=self.time)) if not self.dnf() else "DNF"
+        return format_time(self.time) if not self.dnf() else "DNF"
     
     def format_phase(self):
         return ["Seeding", "Pooling", "Bracket"][self.phase]
