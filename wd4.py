@@ -15,6 +15,16 @@ POOL_SIZE = 4
 db = SqliteDatabase("data.sqlite3")
 db.connect()
 
+
+def serpentine_pool(seed, num_pools):
+    round_number = seed // num_pools
+    index_in_round = seed % num_pools
+    
+    if round_number % 2 == 0:
+        return index_in_round
+    else:
+        return num_pools - 1 - index_in_round
+
 class BaseModel(Model):
     class Meta:
         database = db
@@ -38,9 +48,7 @@ class Pools():
             pools.append(Pools(i, []))
         
         for i,player in enumerate(players):
-            p = Players()
-            p.id = "TBD"
-            pools[i % len(pools)].players.append(p)
+            pools[serpentine_pool(i, len(pools))].players.append(player)
         
         return pools
 
