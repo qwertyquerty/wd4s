@@ -1,7 +1,13 @@
 from flask import Flask, render_template, jsonify, send_from_directory
 from datetime import timedelta, date
 import numpy as np
+from cachetools import TTLCache
+
+cache = TTLCache(maxsize=65536, ttl=50)
+
 from peewee import *
+
+from stats import *
 
 RUN_FLAG_DNF = 1 << 0
 RUN_FLAG_PB  = 1 << 1
@@ -69,7 +75,55 @@ class Players(BaseModel):
             "std": np.std([run.time for run in runs]) if len(runs) else None,
             "completion": len(runs)/self.runs().count() if self.runs().count() else None
         }
+
+    def match_win_prob(self, other):
+        key = ("mwp", self.id, other.id)
+
+        if key in cache: return cache[key]
+        
+        s = self.stats()
+        o = other.stats()
+
+        p = p_a_beats_b((s["mean"] if s["mean"] else self.pb, s["std"]), (o["mean"] if o["mean"] else other.pb, o["std"]))
+
+        cache[key] = p
+        return p
     
+    def all_match_win_prob(self):
+        key = ("amwp", self.id)
+
+        if key in cache: return cache[key]
+        
+        p = 1
+
+        s = self.stats()
+
+        for other in Players.select().where(Players.id != self.id):
+            o = other.stats()
+            pm = p_a_beats_b((s["mean"] if s["mean"] else self.pb, s["std"]), (o["mean"] if o["mean"] else other.pb, o["std"]))
+
+            if pm is None: return None
+
+            p *= pm
+        
+        cache[key] = p
+        return p
+    
+    def tourney_win_prob(self):
+        key = ("twp", self.id)
+
+        if key in cache: return cache[key]
+
+        amwp = self.all_match_win_prob()
+
+        if amwp is None:
+            return None
+
+        p = amwp / sum([other.all_match_win_prob() for other in Players.select()])
+
+        cache[key] = p
+        return p
+
     @classmethod
     def stats_leaderboard(cls):
         return sorted([(player.stats(),player) for player in Players.select()], key=lambda p: p[0]["mean"] or float('infinity'))
