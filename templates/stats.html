@@ -5,14 +5,15 @@
     <h2 style="text-align:center;">Player Stats</h2>
     <table>
         <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Avg Race Time</th>
-            <th>Race Variance</th>
-            <th>Completion</th>
-            <th>Personal Best</th>
+            <th></th>
+            <th><a href="?sort=player" class="{{ 'selected' if sort == 'player' else '' }}">Player</a></th>
+            <th><a href="?sort=avg" class="{{ 'selected' if sort == 'avg' else '' }}">Avg Race Time</a></th>
+            <th><a href="?sort=std" class="{{ 'selected' if sort == 'std' else '' }}">Race Variance</a></th>
+            <th><a href="?sort=completion" class="{{ 'selected' if sort == 'completion' else '' }}">Completion</a></th>
+            <th><a href="?sort=pb" class="{{ 'selected' if sort == 'pb' else '' }}">Personal Best</a></th>
+            <th><a href="?sort=odds" class="{{ 'selected' if sort == 'odds' else '' }}">Win Odds</a></th>
         </tr>
-        {% for stats,player in Players.stats_leaderboard() %}
+        {% for stats,player,twp in leaderboard %}
         <tr>
             <td style="color: var(--hint-color);">
                 {{ loop.index }}
@@ -27,12 +28,44 @@
                 {{ format_time(stats["std"]) if stats["std"] else "-" }}
             </td>
             <td>
-                {{ ((stats["completion"])*100)|int|string + "%" if stats["completion"] != None else "-" }}
+                {{ ((stats["completion"])*100)|round|int|string + "%" if stats["completion"] != None else "-" }}
             </td>
             <td>
                 {{ format_time(player.pb) }}
             </td>
+            <td>
+                {{ ((twp*100)|round(1)|string + "%") if twp != None else "TBD" }}
+            </td>
         </tr>
         {% endfor %}
     </table>
+
+    <!--
+    <br><br>
+    <h2 style="text-align:center;">Player Matchups</h2>
+    <table>
+        {% set players = Players.select().order_by(Players.pb.asc()) %}
+        <tr>
+            <th></th>
+            {% for win in players %}
+                <th style="writing-mode: vertical-rl; color: var(--win-color) !important; font-weight: normal;">{{ win.id }}</th>
+            {% endfor %}
+        </tr>
+        {% for loss in players %}
+        <tr>
+            <td style="color: var(--loss-color) !important;">{{ loss.id }}</td>
+            {% for win in players %}
+                <td>
+                    {% if win.id == loss.id %}
+                        -
+                    {% else %}
+                    {% set p = win.match_win_prob(loss) %}
+                        {{ ((p*100)|int|string)+"%" if p != None else "TBD" }}
+                    {% endif %}
+                </td>
+            {% endfor %}  
+        </tr>
+        {% endfor %}
+    </table>
+    -->
 {% endblock %}

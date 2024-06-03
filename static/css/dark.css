@@ -61,6 +61,10 @@ a {
     color: var(--border-color);
 }
 
+.selected {
+    color: var(--loss-color) !important;
+}
+
 nav a {
     display: inline;
     margin: 10px;
