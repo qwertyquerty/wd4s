@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, request, send_from_directory
 from datetime import timedelta, date
 import numpy as np
 from cachetools import TTLCache
@@ -69,12 +69,19 @@ class Players(BaseModel):
             return Runs.select().where(Runs.player == self.id)
     
     def stats(self):
+        key = ("stats", self.id)
+
+        if key in cache: return cache[key]
+
         runs = list(self.runs(finished=True))
-        return {
+        stats = {
             "mean": sum([run.time for run in runs])/len(runs) if len(runs) else None,
             "std": np.std([run.time for run in runs]) if len(runs) else None,
             "completion": len(runs)/self.runs().count() if self.runs().count() else None
         }
+
+        cache[key] = stats
+        return stats
 
     def match_win_prob(self, other):
         key = ("mwp", self.id, other.id)
@@ -126,7 +133,7 @@ class Players(BaseModel):
 
     @classmethod
     def stats_leaderboard(cls):
-        return sorted([(player.stats(),player) for player in Players.select()], key=lambda p: p[0]["mean"] or float('infinity'))
+        return sorted([(player.stats(),player) for player in Players.select()], key=lambda p: (p[0]["mean"] or float('infinity'), p[1].pb or float('infinity')))
 
 class Runs(BaseModel):
     player = CharField(32)
@@ -165,7 +172,16 @@ def page_index():
 
 @app.route("/runs")
 def page_runs():
-    return render_template("runs.html", **globals())
+    sort = request.args.get("sort", default="id")
+
+    runs = Runs.select()
+
+    if sort in Runs._meta.sorted_field_names:
+        runs = runs.order_by(
+            getattr(Runs, sort).asc()
+        )
+
+    return render_template("runs.html", **globals(), runs=runs, sort=sort)
 
 @app.route("/stats")
 def page_stats():

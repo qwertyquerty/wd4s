@@ -3,13 +3,13 @@
 {% block content %}
     <table>
         <tr>
-            <th>ID</th>
-            <th>Player</th>
-            <th>Time</th>
-            <th>Date</th>
-            <th>Phase</th>
+            <th><a href="?sort=id" class="{{ 'selected' if sort == 'id' else '' }}">ID</a></th>
+            <th><a href="?sort=player" class="{{ 'selected' if sort == 'player' else '' }}">Player</a></th>
+            <th><a href="?sort=time" class="{{ 'selected' if sort == 'time' else '' }}">Time</a></th>
+            <th><a href="?sort=date" class="{{ 'selected' if sort == 'date' else '' }}">Date</a></th>
+            <th><a href="?sort=phase" class="{{ 'selected' if sort == 'phase' else '' }}">Phase</a></th>
         </tr>
-        {% for run in Runs.select().order_by(Runs.id.asc()) %}
+        {% for run in runs %}
         <tr>
             <td style="color: var(--hint-color);">
                 {{ run.id }}
