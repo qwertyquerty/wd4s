@@ -197,7 +197,7 @@ def page_runs():
 
 @app.route("/stats")
 def page_stats():
-    sort = request.args.get("sort", default="rank")
+    sort = request.args.get("sort", default="avg")
 
     leaderboard = Players.stats_leaderboard(sort)
 
