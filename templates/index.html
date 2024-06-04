@@ -87,9 +87,9 @@
                 "Last Chance 1st",
                 "Last Chance 2nd"
             ],
-            settings: { grandFinal: 'single' },
+            settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']},
         });
-
+        
         await window.bracketsManager.create.stage({
             tournamentId: 1,
             name: 'Redemption Bracket',
@@ -97,9 +97,9 @@
             seeding: [
                 "TBD #17", "TBD #18", "TBD #19", "TBD #20", "TBD #21", "TBD #22", "TBD #23", "TBD #24", "TBD #25", "TBD #26", "TBD #27", "TBD #28", "TBD #29", "TBD #30", "TBD #31", "TBD #32"
             ],
-            settings: { grandFinal: 'single' },
+            settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']}
         });
-
+        
         let main_bracket = await window.bracketsManager.get.stageData(0);
 
         window.bracketsViewer.render({
@@ -108,7 +108,7 @@
             matchGames: main_bracket.match_game,
             participants: main_bracket.participant
         }, {selector: "#brackets"});
-
+        
         let red_bracket = await window.bracketsManager.get.stageData(1);
 
         window.bracketsViewer.render({
