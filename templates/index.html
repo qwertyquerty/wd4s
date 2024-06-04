@@ -27,13 +27,13 @@
     <section class="bracket" style="display:inline-block;">
         <h2>Pooling Races</h2>
         
-            {% for pool in Pools.get_pools() %}
+            {% for pool in Pools.select().order_by(Pools.id.asc()) %}
                 {% if loop.index0 % 4 == 0 %}<div class="rounds">{% endif %}
                     <article class="round">
-                        <h3>Pool {{ loop.index }}</h3>
+                        <h3>Pool #{{ loop.index }}</h3>
                         <div class="match">
                             <div class="opponents">
-                                {% for player in pool.players %}
+                                {% for player in pool.players_list() %}
                                 <div class="participant" data-participant-id="0">
                                     <div class="name"><span>{{ "#" + (pool.rank(player)|string) if pool.rank(player) else "" }} </span>{{ player.id }}</div><div class="result">-</div>
                                 </div>
@@ -41,14 +41,14 @@
                             </div>
                         </div>
                     </article>
-                    {% if loop.index == 4 %}
+                    {% if loop.index == Pools.select().count() %}
                         <article class="round">
                             <h3>Last Chance Pool</h3>
                             <div class="match" data-match-id="0" data-match-status="2">
                                 <div class="opponents">
-                                    {% for i in range(Pools.get_pools() | length) %}
+                                    {% for pool in Pools.select().order_by(Pools.id.asc()) %}
                                     <div class="participant" data-participant-id="0" title="1">
-                                        <div class="name hint"><span> </span>#3 of pool {{ loop.index }}</div><div class="result">{{ pool.time(player) if pool.time(player) else "-" }}</div>
+                                        <div class="name hint"><span> </span>#3 of pool {{ pool.id }}</div><div class="result">{{ pool.time(player) if pool.time(player) else "-" }}</div>
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -70,7 +70,22 @@
             name: 'Main Bracket',
             type: 'double_elimination',
             seeding: [
-                "TBD #1", "TBD #2", "TBD #3", "TBD #4", "TBD #5", "TBD #6", "TBD #7", "TBD #8", "TBD #9", "TBD #10", "TBD #11", "TBD #12", "TBD #13", "TBD #14", "TBD #15", "TBD #16"
+                "Pool #1 1st",
+                "Pool #2 1st",
+                "Pool #3 1st",
+                "Pool #4 1st",
+                "Pool #5 1st",
+                "Pool #6 1st",
+                "Pool #7 1st",
+                "Pool #7 2nd",
+                "Pool #5 2nd",
+                "Pool #6 2nd",
+                "Pool #4 2nd",
+                "Pool #3 2nd",
+                "Pool #2 2nd",
+                "Pool #1 2nd",
+                "Last Chance 1st",
+                "Last Chance 2nd"
             ],
             settings: { grandFinal: 'single' },
         });

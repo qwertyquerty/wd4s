@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <br><br>
+    <h2 style="text-align:center;">Zelda Leaderboard</h2>
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th><a>Run ID</a></th>
+            <th><a>Player</a></th>
+            <th><a>Run Time</a></th>
+            <th><a>Date</a></th>
+            <th><a>Swoops</a></th>
+            <th><a>Doritos</a></th>
+            <th><a>Cycle</a></th>
+        </tr>
+        {% for run in runs %}
+        <tr>
+            <td>
+                {{ loop.index }}
+            </td>
+            <td style="color: var(--hint-color);">
+                {{ run.id }}
+            </td>
+            <td>
+                {{ link_name(run.player) }}
+            </td>
+            <td {% if run.pb() %}style="color: var(--win-color)"{% endif %}>
+                {{ run.format_time() }} {% if run.pb() %}<span style="color: var(--border-color);">(PB!)</span>{% endif %}
+            </td>
+            <td>
+                {{ run.date | string }}
+            </td>
+            <td>
+                {{ run.zelda_swoops }}
+            </td>
+            <td>
+                {{ run.zelda_triangles }}
+            </td>
+            <td>
+                {{ run.zelda() }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

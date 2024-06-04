@@ -24,12 +24,17 @@
         <image src="static/wolfdash.png" class="logo"></image>
         
         <nav>
+            <a href="/stats" class="{% if url_for(request.endpoint) == '/stats' %}active{% endif %}">Stats</a>
+            <a>-</a>
             <a href="/runs" class="{% if url_for(request.endpoint) == '/runs' %}active{% endif %}">Runs</a>
             <a>-</a>
             <a href="/" class="{% if url_for(request.endpoint) == '/' %}active{% endif %}">Bracket</a>
             <a>-</a>
-            <a href="/stats" class="{% if url_for(request.endpoint) == '/stats' %}active{% endif %}">Stats</a>
+            <a href="/players" class="{% if url_for(request.endpoint) == '/players' %}active{% endif %}">Players</a>
+            <a>-</a>
+            <a href="/zelda" class="{% if url_for(request.endpoint) == '/zelda' %}active{% endif %}">Zelda</a>
         </nav>
+        <h2 style="text-align:center;"><a href="https://challonge.com/ah76yvxp/">Link to Official Bracket</a></h2>
 
         {% block content %}
         {% endblock %}

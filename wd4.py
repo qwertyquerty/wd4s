@@ -39,29 +39,17 @@ def format_time(time):
     return str(timedelta(seconds=time))
     
 
-class Pools():
-    def __init__(self, id, players):
-        self.id = id
-        self.players = players
+class Pools(BaseModel):
+    id = IntegerField()
+    players = CharField()
 
-    @classmethod
-    def get_pools(cls):
-        pools = []
-
-        players = Players.select().order_by(Players.pb.asc())
-
-        for i in range(players.count() // POOL_SIZE):
-            pools.append(Pools(i, []))
-        
-        for i,player in enumerate(players):
-            pools[serpentine_pool(i, len(pools))].players.append(player)
-        
-        return pools
-
-    def rank(self, player):
-        return None
+    def players_list(self):
+        return [Players.get_by_id(player) for player in self.players.split(",")]
 
     def time(self, player):
+        return None
+    
+    def rank(self, player):
         return None
 
 class Players(BaseModel):
@@ -163,6 +151,8 @@ class Runs(BaseModel):
     flags = IntegerField()
     phase = IntegerField()
     event = IntegerField()
+    zelda_swoops = IntegerField()
+    zelda_triangles = IntegerField()
 
     @classmethod
     def get_seeding_runs(cls):
@@ -184,6 +174,9 @@ class Runs(BaseModel):
     def pb(self):
         return self.flags & RUN_FLAG_PB
 
+    def zelda(self):
+        return self.zelda_triangles + self.zelda_swoops + 3 if (self.zelda_triangles is not None and self.zelda_swoops is not None) else None
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -203,13 +196,22 @@ def page_runs():
 
     return render_template("runs.html", **globals(), runs=runs, sort=sort)
 
-@app.route("/stats")
-def page_stats():
+@app.route("/zelda")
+def page_zelda():
+    runs = Runs.select().where(Runs.zelda_triangles != None).order_by((Runs.zelda_triangles+Runs.zelda_swoops).desc(), Runs.zelda_triangles.desc(), Runs.time.asc())
+    return render_template("zelda.html", **globals(), runs=runs)
+
+@app.route("/players")
+def page_players():
     sort = request.args.get("sort", default="avg")
 
     leaderboard = Players.stats_leaderboard(sort)
 
-    return render_template("stats.html", **globals(), leaderboard=leaderboard, sort=sort)
+    return render_template("players.html", **globals(), leaderboard=leaderboard, sort=sort)
+
+@app.route("/stats")
+def page_stats():
+    return render_template("stats.html", **globals())
 
 @app.route('/static/<path:path>')
 def page_static(path):
