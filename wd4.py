@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, send_from_directory
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 import numpy as np
 from cachetools import TTLCache
+import time
 
 cache = TTLCache(maxsize=65536, ttl=50)
 
@@ -177,6 +178,24 @@ class Runs(BaseModel):
     def zelda(self):
         return self.zelda_triangles + self.zelda_swoops + 3 if (self.zelda_triangles is not None and self.zelda_swoops is not None) else None
 
+class Races(BaseModel):
+    id = TextField()
+    players = TextField()
+    timestamp = IntegerField()
+
+    def get_players(self):
+        if self.players != None:
+            return [Players.get_by_id(player) for player in self.players.split(",")]
+        elif self.id == "seeding":
+            return [Players.get_by_id(run.player) for run in Runs.select().where(Runs.phase == PHASE_SEEDING)]
+        elif self.id.split(" ")[0] == "pool":
+            return Pools.get_by_id(int(self.id.split(" ")[1])).players_list()
+        
+        return []        
+
+    def get_timestamp(self):
+        return datetime.fromtimestamp(self.timestamp)
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -212,6 +231,10 @@ def page_players():
 @app.route("/stats")
 def page_stats():
     return render_template("stats.html", **globals())
+
+@app.route("/schedule")
+def page_schedule():
+    return render_template("schedule.html", **globals())
 
 @app.route('/static/<path:path>')
 def page_static(path):
