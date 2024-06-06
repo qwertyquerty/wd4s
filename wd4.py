@@ -182,6 +182,7 @@ class Races(BaseModel):
     id = TextField()
     players = TextField()
     timestamp = IntegerField()
+    vod = TextField()
 
     def get_players(self):
         if self.players != None:

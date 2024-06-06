@@ -32,6 +32,7 @@
         <tr>
             <th>ID</th>
             <th>Players</th>
+            <th>VOD</th>
             <th style="min-width: 160px;">Local Start Time</th>
         </tr>
         {% for race in Races.select().where(Races.timestamp < (time.time() - 14400)).order_by(Races.timestamp.asc()) %}
@@ -42,6 +43,12 @@
             <td>
                 {% for player in race.get_players() %}{% if loop.index != 1 %}, {% endif %}{{ link_name(player) }}{% endfor %}
             </td>
+            <td>
+                {% if race.vod != None %}
+                    <a href="{{ race.vod }}">Link</a>
+                {% else %}
+                    ...            
+                {% endif %}
             <td>
                 <div onload="this.innerText = new Date({{ race.timestamp }} * 1000).toLocaleString()"></div>
             </td>
