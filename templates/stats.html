@@ -1,7 +1,112 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <br><br>
-    <h2 style="text-align:center;">Stats will be available once everyone has a race time</h2>
+    <div class="row">
+        <div class="column" id="run_time_hist"></div>
+        <div class="column" id="zelda_cycle_hist"></div>
+    </div>
+
+    <script>
+        Plotly.newPlot('run_time_hist', [{
+            x: [
+                {% for run in Runs.select() %}
+                    {% if not run.dnf() %}
+                        (new Date({{ run.time*1000 }})).toISOString(),
+                    {% endif %}
+                {% endfor %}
+            ],
+            nbinsx: 20,
+            type: 'histogram',
+            marker: {
+                color: '#DDAB5411',
+                line: {
+                    color: "#DDAB54", 
+                    width: 1
+                }
+            },
+            insidetextfont: {
+                color: "#d8e8ef",
+            }
+        }],
+        {
+            title: {
+                text: 'Run Time Histogram',
+                font: {
+                    size: 24,
+                    color: '#d8e8ef'
+                }
+            },
+            xaxis: {
+                autorange: 'reversed',
+                type: 'date',
+                tickformat: '%H:%M:%S',
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                }
+            },
+            yaxis: {
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                }
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        }, {
+            displayModeBar: false
+        });
+
+        Plotly.newPlot('zelda_cycle_hist', [{
+            x: [
+                {% for run in Runs.select() %}
+                    {% if run.zelda() != None %}
+                        "{{ run.zelda() }}",
+                    {% endif %}
+                {% endfor %}
+            ],
+            histfunc: "count",
+            type: 'histogram',
+            marker: {
+                color: '#DDAB5411',
+                line: {
+                    color: "#DDAB54", 
+                    width: 1
+                }
+            },
+            insidetextfont: {
+                color: "#d8e8ef",
+            }
+        }],
+        {
+            title: {
+                text: 'Zelda Cycle Histogram',
+                font: {
+                    size: 24,
+                    color: '#d8e8ef'
+                }
+            },
+            xaxis: {
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                },
+                tickformat: ',d',
+                dtick: 1
+            },
+            yaxis: {
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                }
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        }, {
+            displayModeBar: false
+        });
+    </script>
+    <br>
+    <h2 style="text-align:center;">More stats will be available once everyone has a race time</h2>
     <br><br>
 {% endblock %}

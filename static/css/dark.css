@@ -107,3 +107,14 @@ h1 {
 .result {
     width: 30% !important;
 }
+
+.column {
+    float: left;
+    width: 50%;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
