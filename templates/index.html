@@ -33,11 +33,20 @@
                         <h3>Pool #{{ loop.index }}</h3>
                         <div class="match">
                             <div class="opponents">
-                                {% for player in pool.players_list() %}
-                                <div class="participant" data-participant-id="0">
-                                    <div class="name"><span>{{ "#" + (pool.rank(player)|string) if pool.rank(player) else "" }} </span>{{ player.id }}</div><div class="result">-</div>
-                                </div>
-                                {% endfor %}
+                                {% set lb = pool.leaderboard() %}
+                                    {% for run in pool.leaderboard() %}
+                                    <div class="participant" data-participant-id="0">
+                                        <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                                    </div>
+                                    {% endfor %}
+                                {% if lb.count() %}
+                                {% else %}
+                                    {% for player in pool.players_list() %}
+                                    <div class="participant" data-participant-id="0">
+                                        <div class="name"><span></span>{{ player.id }}</div><div class="result">-</div>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
                     </article>
@@ -48,7 +57,12 @@
                                 <div class="opponents">
                                     {% for pool in Pools.select().order_by(Pools.id.asc()) %}
                                     <div class="participant" data-participant-id="0" title="1">
-                                        <div class="name hint"><span> </span>#3 of pool {{ pool.id }}</div><div class="result">{{ pool.time(player) if pool.time(player) else "-" }}</div>
+                                        {% set run = pool.run_from_rank(3) %}
+                                        {% if run != None %}
+                                            <div class="name"><span> </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                                        {% else %}
+                                            <div class="name hint"><span> </span>#3 of pool {{ pool.id }}</div><div class="result">-</div>
+                                        {% endif %}
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -76,8 +90,8 @@
                 "Pool #4 1st",
                 "Pool #5 1st",
                 "Pool #6 1st",
-                "Pool #7 1st",
-                "Pool #7 2nd",
+                "JDLM",
+                "iwabi74",
                 "Pool #5 2nd",
                 "Pool #6 2nd",
                 "Pool #4 2nd",

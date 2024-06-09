@@ -47,11 +47,15 @@ class Pools(BaseModel):
     def players_list(self):
         return [Players.get_by_id(player) for player in self.players.split(",")]
 
-    def time(self, player):
-        return None
+    def run_from_rank(self, rank):
+        lb = list(Runs.select().where(Runs.event == self.event_id()).order_by(Runs.time.asc()))
+        return lb[rank-1] if len(lb) else None
     
-    def rank(self, player):
-        return None
+    def event_id(self):
+        return self.id
+
+    def leaderboard(self):
+        return Runs.select().where(Runs.event == self.event_id()).order_by(Runs.time.asc())
 
 class Players(BaseModel):
     id = CharField(32)
