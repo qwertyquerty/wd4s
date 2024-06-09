@@ -59,7 +59,7 @@
                                     <div class="participant" data-participant-id="0" title="1">
                                         {% set run = pool.run_from_rank(3) %}
                                         {% if run != None %}
-                                            <div class="name"><span> </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                                            <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
                                         {% else %}
                                             <div class="name hint"><span> </span>#3 of pool {{ pool.id }}</div><div class="result">-</div>
                                         {% endif %}
