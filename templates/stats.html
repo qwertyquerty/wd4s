@@ -5,17 +5,23 @@
         <div class="column" id="run_time_hist"></div>
         <div class="column" id="zelda_cycle_hist"></div>
     </div>
+    <div class="row">
+        <div class="column" id="zelda_cycle_scat"></div>
+        <div class="column" id="run_completion_pie"></div>
+    </div>
 
     <script>
+        {% set runs = Runs.select() | list %}
+
         Plotly.newPlot('run_time_hist', [{
             x: [
-                {% for run in Runs.select() %}
+                {% for run in runs %}
                     {% if not run.dnf() %}
                         (new Date({{ run.time*1000 }})).toISOString(),
                     {% endif %}
                 {% endfor %}
             ],
-            nbinsx: 25,
+            nbinsx: 60,
             type: 'histogram',
             marker: {
                 color: '#DDAB5411',
@@ -59,7 +65,7 @@
 
         Plotly.newPlot('zelda_cycle_hist', [{
             x: [
-                {% for run in Runs.select() %}
+                {% for run in runs %}
                     {% if run.zelda() != None %}
                         "{{ run.zelda() }}",
                     {% endif %}
@@ -99,6 +105,119 @@
                     size: 12,
                     color: '#d8e8ef'
                 }
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        }, {
+            displayModeBar: false
+        });
+
+        Plotly.newPlot('zelda_cycle_scat', [{
+            y: [
+                {% for run in runs %}
+                    {% if run.zelda() != None %}
+                        {{ run.zelda() }},
+                    {% endif %}
+                {% endfor %}
+            ],
+            x: [
+                {% for run in runs %}
+                    {% if run.zelda() != None %}
+                        (new Date({{ run.time*1000 }})).toISOString(),
+                    {% endif %}
+                {% endfor %}
+            ],
+            mode: 'markers',
+            type: 'scatter',
+            marker: {
+                color: '#DDAB54',
+                line: {
+                    color: "#DDAB54", 
+                    width: 3
+                }
+            },
+            insidetextfont: {
+                color: "#d8e8ef",
+            }
+        }],
+        {
+            title: {
+                text: 'Zelda Cycle vs Run Time',
+                font: {
+                    size: 24,
+                    color: '#d8e8ef'
+                }
+            },
+            xaxis: {
+                autorange: 'reversed',
+                type: 'date',
+                tickformat: '%H:%M:%S',
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                }
+            },
+            yaxis: {
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                },
+                mode: 'markers',
+                dtick: 1
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        }, {
+            displayModeBar: false
+        });
+
+
+        {% set completion_stats = Runs.completion_stats() %}
+        Plotly.newPlot('run_completion_pie', [{
+            values: [
+                {{ completion_stats["pb"] }},
+                {{ completion_stats["completed"] - completion_stats["pb"] }},
+                {{ completion_stats["dnf"] }}
+            ],
+            labels: [
+                "Personal Best", "Completed", "DNF"
+            ],
+            type: 'pie',
+            marker: {
+                colors: ['#50b64922', '#DDAB5422', '#de2c2622'],
+                line: {
+                    color: "#DDAB54", 
+                    width: 1
+                }
+            },
+            insidetextfont: {
+                color: "#d8e8ef",
+            }
+        }],
+        {
+            title: {
+                text: 'Run Completion',
+                font: {
+                    size: 24,
+                    color: '#d8e8ef'
+                }
+            },
+            xaxis: {
+                autorange: 'reversed',
+                type: 'date',
+                tickformat: '%H:%M:%S',
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                }
+            },
+            yaxis: {
+                tickfont: {
+                    size: 12,
+                    color: '#d8e8ef'
+                },
+                mode: 'markers',
+                dtick: 1
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)'

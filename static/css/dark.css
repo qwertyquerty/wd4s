@@ -118,3 +118,7 @@ h1 {
     display: table;
     clear: both;
 }
+
+.hint {
+    color: var(--hint-color);
+}

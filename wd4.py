@@ -81,6 +81,8 @@ class Players(BaseModel):
             "completion": len(runs)/self.runs().count() if self.runs().count() else None
         }
 
+        stats["pbdiff"] = (stats["mean"] - self.pb) if stats["mean"] else None
+
         cache[key] = stats
         return stats
 
@@ -142,6 +144,7 @@ class Players(BaseModel):
             "completion": lambda p: (-(p[0]["completion"] if p[0]["completion"] is not None else float('-infinity')), p[1].pb or float('infinity')),
             "pb": lambda p: p[1].pb or float('infinity'),
             "std": lambda p: (p[0]["std"] or float('infinity'), p[1].pb or float('infinity')),
+            "pbdiff": lambda p: (p[0]["pbdiff"] if p[0]["pbdiff"] is not None else float('infinity'), p[1].pb or float('infinity'))
         }
 
         return sorted([
@@ -181,6 +184,15 @@ class Runs(BaseModel):
 
     def zelda(self):
         return self.zelda_triangles + self.zelda_swoops + 3 if (self.zelda_triangles is not None and self.zelda_swoops is not None) else None
+
+    @classmethod
+    def completion_stats(cls):
+        runs = list(Runs.select())
+        return {
+            "completed": len([run for run in runs if not run.dnf()]),
+            "dnf": len([run for run in runs if run.dnf()]),
+            "pb": len([run for run in runs if run.pb()])
+        }
 
 class Races(BaseModel):
     id = TextField()
