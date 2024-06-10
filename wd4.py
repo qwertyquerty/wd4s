@@ -76,8 +76,8 @@ class Players(BaseModel):
 
         runs = list(self.runs(finished=True))
         stats = {
-            "mean": sum([run.time for run in runs])/len(runs) if len(runs) else None,
-            "std": np.std([run.time for run in runs]) if (len(runs) > 1) else None,
+            "mean": int(sum([run.time for run in runs])/len(runs)) if len(runs) else None,
+            "std": int(np.std([run.time for run in runs])) if (len(runs) > 1) else None,
             "completion": len(runs)/self.runs().count() if self.runs().count() else None
         }
 
