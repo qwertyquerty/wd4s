@@ -43,32 +43,4 @@
         </tr>
         {% endfor %}
     </table>
-
-    <br><br>
-    <h2 style="text-align:center;">Player Matchups</h2>
-    <table>
-        {% set players = Players.select().order_by(Players.pb.asc()) %}
-        <tr>
-            <th></th>
-            {% for win in players %}
-                <th style="writing-mode: vertical-rl; color: var(--win-color) !important; font-weight: normal;">{{ win.id }}</th>
-            {% endfor %}
-        </tr>
-        {% for loss in players %}
-        <tr>
-            <td style="color: var(--loss-color) !important;">{{ loss.id }}</td>
-            {% for win in players %}
-                {% set p = win.match_win_prob(loss) %}
-                <td {% if p == None and win.id != loss.id %}class="hint"{% endif %}>
-                    {% if win.id == loss.id %}
-                        -
-                    {% else %}
-                        {{ ((p*100)|round(0)|int|string)+"%" if p != None else "..." }}
-                    {% endif %}
-                </td>
-            {% endfor %}  
-        </tr>
-        {% endfor %}
-    </table>
-
 {% endblock %}
