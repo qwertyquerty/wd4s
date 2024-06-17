@@ -128,24 +128,66 @@
             ],
             settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']}
         });
-        
-        let main_bracket = await window.bracketsManager.get.stageData(0);
 
-        window.bracketsViewer.render({
-            stages: main_bracket.stage,
-            matches: main_bracket.match,
-            matchGames: main_bracket.match_game,
-            participants: main_bracket.participant
-        }, {selector: "#brackets"});
-        
-        let red_bracket = await window.bracketsManager.get.stageData(1);
+    {% for i in range(64) %}
+    {% set race = (Runs.select().where(Runs.event == i, Runs.phase == 2) | list) %}
+        {% if (race | length) == 2 %}
+            if (window.bracketsManager.storage.data.participant[window.bracketsManager.storage.data.match[{{ i }}].opponent1.id].name == '{{ race[0].player }}') {
+                await window.bracketsManager.update.match({
+                    id: {{ i }},
+                    opponent1: {
+                        score: '{{ race[0].format_time() }}',
+                        {% if race[0].time < race[1].time %}
+                            result: 'win'
+                        {% endif %}
+                    },
+                    opponent2: {
+                        score: '{{ race[1].format_time() }}',
+                        {% if race[0].time >= race[1].time %}
+                            result: 'win'
+                        {% endif %}
+                    }
+                });
+            }
+            else {
+                await window.bracketsManager.update.match({
+                    id: {{ i }},
+                    opponent2: {
+                        score: '{{ race[0].format_time() }}',
+                        {% if race[0].time < race[1].time %}
+                            result: 'win'
+                        {% endif %}
+                    },
+                    opponent1: {
+                        score: '{{ race[1].format_time() }}',
+                        {% if race[0].time >= race[1].time %}
+                            result: 'win'
+                        {% endif %}
+                    }
+                });
+            }
 
-        window.bracketsViewer.render({
-            stages: red_bracket.stage,
-            matches: red_bracket.match,
-            matchGames: red_bracket.match_game,
-            participants: red_bracket.participant
-        }, {selector: "#brackets"});
+        {% endif %}
+    {% endfor %}
+            
+    let main_bracket = await window.bracketsManager.get.stageData(0);
+
+    window.bracketsViewer.render({
+        stages: main_bracket.stage,
+        matches: main_bracket.match,
+        matchGames: main_bracket.match_game,
+        participants: main_bracket.participant
+    }, {selector: "#brackets"});
+
+    let red_bracket = await window.bracketsManager.get.stageData(1);
+
+    window.bracketsViewer.render({
+        stages: red_bracket.stage,
+        matches: red_bracket.match,
+        matchGames: red_bracket.match_game,
+        participants: red_bracket.participant
+    }, {selector: "#brackets"});
+
     })();
 </script>
 {% endblock %}

@@ -48,14 +48,14 @@ class Pools(BaseModel):
         return [Players.get_by_id(player) for player in self.players.split(",")]
 
     def run_from_rank(self, rank):
-        lb = list(Runs.select().where(Runs.event == self.event_id()).order_by(Runs.time.asc()))
+        lb = list(Runs.select().where(Runs.event == self.event_id(), Runs.phase == PHASE_POOLING).order_by(Runs.time.asc()))
         return lb[rank-1] if len(lb) else None
     
     def event_id(self):
         return self.id
 
     def leaderboard(self):
-        return Runs.select().where(Runs.event == self.event_id()).order_by(Runs.time.asc())
+        return Runs.select().where(Runs.event == self.event_id(), Runs.phase == PHASE_POOLING).order_by(Runs.time.asc())
 
 class Players(BaseModel):
     id = CharField(32)
