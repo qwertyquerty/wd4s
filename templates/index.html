@@ -34,12 +34,12 @@
                         <div class="match">
                             <div class="opponents">
                                 {% set lb = pool.leaderboard() %}
-                                    {% for run in pool.leaderboard() %}
+                                {% if lb.count() %}
+                                    {% for run in lb %}
                                     <div class="participant" data-participant-id="0">
                                         <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
                                     </div>
                                     {% endfor %}
-                                {% if lb.count() %}
                                 {% else %}
                                     {% for player in pool.players_list() %}
                                     <div class="participant" data-participant-id="0">
@@ -55,16 +55,25 @@
                             <h3>Last Chance Pool</h3>
                             <div class="match" data-match-id="0" data-match-status="2">
                                 <div class="opponents">
-                                    {% for pool in Pools.select().order_by(Pools.id.asc()) %}
-                                    <div class="participant" data-participant-id="0" title="1">
-                                        {% set run = pool.run_from_rank(3) %}
-                                        {% if run != None %}
-                                            <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
-                                        {% else %}
-                                            <div class="name hint"><span> </span>#3 of pool {{ pool.id }}</div><div class="result">-</div>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
+                                    {% set lb = Pools(id=8).leaderboard() %}
+                                    {% if lb.count() %}
+                                        {% for run in lb %}
+                                        <div class="participant" data-participant-id="0">
+                                            <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for pool in Pools.select().order_by(Pools.id.asc()) %}
+                                        <div class="participant" data-participant-id="0" title="1">
+                                            {% set run = pool.run_from_rank(3) %}
+                                            {% if run != None %}
+                                                <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
+                                            {% else %}
+                                                <div class="name hint"><span> </span>#3 of pool {{ pool.id }}</div><div class="result">-</div>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </article>
@@ -98,8 +107,8 @@
                 "DeanMachine42",
                 "Glubbers",
                 "WaterproofTeabag_",
-                "Last Chance 1st",
-                "Last Chance 2nd"
+                "An D",
+                "Simikins"
             ],
             settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']},
         });
@@ -109,11 +118,11 @@
             name: 'Redemption Bracket',
             type: 'double_elimination',
             seeding: [
-                "Last Chance 3rd",
-                "Last Chance 4th",
-                "Last Chance 5th",
-                "Last Chance 6th",
-                "Last Chance 7th",
+                "UnknownPigeon",
+                "bdamja",
+                "link1183",
+                "qwertyquerty",
+                "TheEtherNetBoyz",
                 "theprinceofnone",
                 "wolfegarden",
                 "Midnaliin",
