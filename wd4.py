@@ -110,12 +110,15 @@ class Players(BaseModel):
 
         for other in Players.select().where(Players.id != self.id):
             o = other.stats()
-            pm = p_a_beats_b((s["mean"] if s["mean"] else None, s["std"]), (o["mean"] if o["mean"] else None, o["std"]))
+            pm = p_a_beats_b((s["mean"] if s["mean"] else 100000, s["std"] or 60), (o["mean"] if o["mean"] else 100000, o["std"] or 60))
 
             if pm is None: return None
 
             p *= pm
         
+        import math
+        p = math.sqrt(p)
+
         cache[key] = p
         return p
     
