@@ -62,6 +62,7 @@ class Players(BaseModel):
     pb = FloatField()
     twitch = CharField(32)
     flags = IntegerField()
+    eliminated = IntegerField()
 
     def runs(self, finished=False):
         if finished:
@@ -100,6 +101,9 @@ class Players(BaseModel):
         return p
     
     def all_match_win_prob(self):
+        if self.eliminated:
+            return 0
+        
         key = ("amwp", self.id)
 
         if key in cache: return cache[key]
@@ -108,7 +112,7 @@ class Players(BaseModel):
 
         s = self.stats()
 
-        for other in Players.select().where(Players.id != self.id):
+        for other in Players.select().where(Players.id != self.id, Players.eliminated != 1):
             o = other.stats()
             pm = p_a_beats_b((s["mean"] if s["mean"] else 100000, s["std"] or 60), (o["mean"] if o["mean"] else 100000, o["std"] or 60))
 

@@ -1,4 +1,4 @@
-{% macro link_name(name) -%}<a href="https://speedrun.com/User/{{ name }}">{{ name }}</a>{% endmacro %}
+{% macro link_name(name, eliminated=0) -%}<a {% if eliminated %}style="color: #cc4444;"{% endif %} href="https://speedrun.com/User/{{ name }}">{{ name }}</a>{% endmacro %}
 
 <html lang="en">
     <head>

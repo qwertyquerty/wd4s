@@ -20,7 +20,7 @@
                 {{ loop.index }}
             </td>
             <td>
-                {{ link_name(player.id) }}
+                {{ link_name(player.id, player.eliminated) }}
             </td>
             <td>
                 {{ format_time(stats["mean"]) if stats["mean"] else "-" }}
