@@ -12,6 +12,7 @@
             <th><a href="?sort=pbdiff" class="{{ 'selected' if sort == 'pbdiff' else '' }}">Avg - PB</a></th>
             <th><a href="?sort=std" class="{{ 'selected' if sort == 'std' else '' }}">Race Variance</a></th>
             <th><a href="?sort=completion" class="{{ 'selected' if sort == 'completion' else '' }}">Completion</a></th>
+            <th><a href="?sort=zelda" cass="{{ 'selected' if sort == 'zelda' else '' }}">Avg Zelda</a></th>
             <th><a href="?sort=odds" class="{{ 'selected' if sort == 'odds' else '' }}">Win Odds</a></th>
         </tr>
         {% for stats,player,twp in leaderboard %}
@@ -36,6 +37,9 @@
             </td>
             <td>
                 {{ ((stats["completion"])*100)|round|int|string + "%" if stats["completion"] != None else "-" }}
+            </td>
+            <td>
+                {{ (stats["mean_zelda"])|round(1) if stats["mean_zelda"] else "-" }}
             </td>
             <td>
                 {{ ((twp*100)|round(1)|string + "%") if twp != None else "-" }}

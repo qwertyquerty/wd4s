@@ -79,7 +79,8 @@ class Players(BaseModel):
         stats = {
             "mean": int(sum([run.time for run in runs])/len(runs)) if len(runs) else None,
             "std": int(np.std([run.time for run in runs])) if (len(runs) > 1) else None,
-            "completion": len(runs)/self.runs().count() if self.runs().count() else None
+            "completion": len(runs)/self.runs().count() if self.runs().count() else None,
+            "mean_zelda": sum([run.zelda() for run in runs if run.zelda()]) / len([run.zelda() for run in runs if run.zelda()]) if len([run.zelda() for run in runs if run.zelda()]) else None
         }
 
         stats["pbdiff"] = (stats["mean"] - self.pb) if stats["mean"] else None
@@ -147,11 +148,12 @@ class Players(BaseModel):
             "player": lambda p: p[1].id.lower(),
             "avg": lambda p: (p[0]["mean"] or float('infinity'), p[1].pb or float('infinity')),
             "rank": lambda p: (p[0]["mean"] or float('infinity'), p[1].pb or float('infinity')),
-            "odds": lambda p: (-(p[2] or float('-infinity')), p[1].pb or float('infinity')),
+            "odds": lambda p: (-(p[2] or float('-infinity')), not p[1].eliminated or float('infinity')),
             "completion": lambda p: (-(p[0]["completion"] if p[0]["completion"] is not None else float('-infinity')), p[1].pb or float('infinity')),
             "pb": lambda p: p[1].pb or float('infinity'),
             "std": lambda p: (p[0]["std"] or float('infinity'), p[1].pb or float('infinity')),
-            "pbdiff": lambda p: (p[0]["pbdiff"] if p[0]["pbdiff"] is not None else float('infinity'), p[1].pb or float('infinity'))
+            "pbdiff": lambda p: (p[0]["pbdiff"] if p[0]["pbdiff"] is not None else float('infinity'), p[1].pb or float('infinity')),
+            "zelda": lambda p: (p[0]["mean_zelda"] if p[0]["mean_zelda"] is not None else float('infinity'))
         }
 
         return sorted([
