@@ -121,9 +121,6 @@ class Players(BaseModel):
 
             p *= pm
         
-        import math
-        p = math.sqrt(p)
-
         cache[key] = p
         return p
     
@@ -267,4 +264,4 @@ def page_static(path):
     return send_from_directory('static', path)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=7140)
+    app.run("localhost", debug=True, port=7140)
