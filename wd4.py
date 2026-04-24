@@ -45,7 +45,7 @@ class Pools(BaseModel):
     players = CharField()
 
     def players_list(self):
-        return [Players.get_by_id(player) for player in self.players.split(",")]
+        return [Players.get_or_none(Players.id == player) for player in self.players.split(",")]
 
     def run_from_rank(self, rank):
         lb = list(Runs.select().where(Runs.event == self.event_id(), Runs.phase == PHASE_POOLING).order_by(Runs.time.asc()))

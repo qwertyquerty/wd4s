@@ -9,6 +9,7 @@
             <article class="round">
                 <div class="match">
                     <div class="opponents">
+                        {% if Runs.get_seeding_runs() | length %}
                         {% for run in Runs.get_seeding_runs() %}
                         <div class="participant" data-participant-id="{{ run.player }}" title="1">
                             <div class="name">
@@ -19,6 +20,18 @@
                             </div>
                         </div>
                         {% endfor %}
+                        {% else %}
+                        {% for i in range(20) %}
+                        <div class="participant" data-participant-id="???" title="1">
+                            <div class="name">
+                                <span>#{{ loop.index }} </span>???
+                            </div>
+                            <div class="result">
+                                -
+                            </div>
+                        </div>     
+                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </article>
@@ -43,7 +56,7 @@
                                 {% else %}
                                     {% for player in pool.players_list() %}
                                     <div class="participant" data-participant-id="0">
-                                        <div class="name"><span></span>{{ player.id }}</div><div class="result">-</div>
+                                        <div class="name"><span></span>{{ player.id or "???" }}</div><div class="result">-</div>
                                     </div>
                                     {% endfor %}
                                 {% endif %}
@@ -93,22 +106,22 @@
             name: 'Main Bracket',
             type: 'double_elimination',
             seeding: [
-                "bewildebeest",
-                "Nimzo",
-                "Marco",
-                "Doopsie",
-                "ZachLink99",
-                "Jeezhs",
-                "JDLM",
-                "iwabi74",
-                "TheGuyDownstairs",
-                "Anorakkis",
-                "NotableCass",
-                "DeanMachine42",
-                "Glubbers",
-                "WaterproofTeabag_",
-                "An D",
-                "Simikins"
+                "Pool 1 #1",
+                "Pool 2 #1",
+                "Pool 3 #1",
+                "Pool 4 #1",
+                "Pool 5 #1",
+                "Pool 6 #1",
+                "Pool 7 #1",
+                "Pool 1 #2",
+                "Pool 2 #2",
+                "Pool 3 #2",
+                "Pool 4 #2",
+                "Pool 5 #2",
+                "Pool 6 #2",
+                "Pool 7 #2",
+                "LC Pool #1",
+                "LC Pool #2"
             ],
             settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']},
         });
@@ -118,22 +131,22 @@
             name: 'Redemption Bracket',
             type: 'double_elimination',
             seeding: [
-                "UnknownPigeon",
-                "bdamja",
-                "link1183",
-                "qwertyquerty",
-                "TheEtherNetBoyz",
-                "theprinceofnone",
-                "wolfegarden",
-                "Midnaliin",
-                "FodderCannonn",
-                "FirnenLegacy",
-                "Jacquaid",
-                "UkyoTP",
-                "garm993",
-                "spicyjuice04",
-                "Little_Tuffy",
-                "kipcode66"
+                "LC Pool #3",
+                "LC Pool #4",
+                "LC Pool #5",
+                "LC Pool #6",
+                "LC Pool #7",
+                "Pool 1 #4",
+                "Pool 2 #4",
+                "Pool 3 #4",
+                "Pool 4 #4",
+                "Pool 5 #4",
+                "Pool 6 #4",
+                "Pool 7 #4",
+                "Pool 1 #5",
+                "Pool 2 #5",
+                "Pool 3 #5",
+                "Pool 4 #5"
             ],
             settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']}
         });

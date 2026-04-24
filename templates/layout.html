@@ -7,12 +7,12 @@
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.js"></script>
         <script src="static/brackets-manager.js"></script>
 
-        <title>Wolfdash 4 Stats</title>
+        <title>Wolfdash 5</title>
 
         <link rel="stylesheet" href="static/css/dark.css" />
 
-        <meta property="og:title" content="Wolfdash 4 Stats" />
-        <meta property="og:image" content="static/wolfdash.png" />
+        <meta property="og:title" content="Wolfdash 5" />
+        <meta property="og:image" content="static/wd5.png" />
         <meta property="og:locale" content="en_US" />
         <meta property="og:site_name" content="Twilight Princess Community" />
 
@@ -30,8 +30,8 @@
     </head>
 
     <body>
-        <image src="static/wolfdash.png" class="logo"></image>
-        
+        <image src="static/wd5.png" class="logo"></image>
+        <br/>
         <nav>
             <a href="/stats" class="{% if url_for(request.endpoint) == '/stats' %}active{% endif %}">Stats</a>
             <a>-</a>
@@ -45,13 +45,12 @@
             <a>-</a>
             <a href="/zelda" class="{% if url_for(request.endpoint) == '/zelda' %}active{% endif %}">Zelda</a>
         </nav>
-        <h2 style="text-align:center;"><a href="https://challonge.com/Wolfdash4">Link to Official Bracket</a></h2>
 
         {% block content %}
         {% endblock %}
         <footer class="footer">
             <div style="text-align: center;">
-                <strong>WD4 Stats</strong> website made with &lt;3 by <a href="https://github.com/qwertyquerty">qwerty</a>
+                <strong>Wolfdash 5</strong> website made with &lt;3 by <a href="https://github.com/qwertyquerty">Maddie</a>
             </div>
         </footer>
     </body>
