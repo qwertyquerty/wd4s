@@ -33,15 +33,15 @@
         <image src="static/wd5.png" class="logo"></image>
         <br/>
         <nav>
-            <a href="/stats" class="{% if url_for(request.endpoint) == '/stats' %}active{% endif %}">Stats</a>
+            <a href="{{ url_for('page_stats') }}" class="{% if request.endpoint == 'page_stats' %}active{% endif %}">Stats</a>
             <a>-</a>
-            <a href="/runs" class="{% if url_for(request.endpoint) == '/runs' %}active{% endif %}">Runs</a>
+            <a href="{{ url_for('page_runs') }}" class="{% if request.endpoint == 'page_runs' %}active{% endif %}">Runs</a>
             <a>-</a>
-            <a href="/" class="{% if url_for(request.endpoint) == '/' %}active{% endif %}">Bracket</a>
+            <a href="{{ url_for('page_index') }}" class="{% if request.endpoint == 'page_index' %}active{% endif %}">Bracket</a>
             <a>-</a>
-            <a href="/schedule" class="{% if url_for(request.endpoint) == '/schedule' %}active{% endif %}">Schedule</a>
+            <a href="{{ url_for('page_schedule') }}" class="{% if request.endpoint == 'page_schedule' %}active{% endif %}">Schedule</a>
             <a>-</a>
-            <a href="/players" class="{% if url_for(request.endpoint) == '/players' %}active{% endif %}">Players</a>
+            <a href="{{ url_for('page_players') }}" class="{% if request.endpoint == 'page_players' %}active{% endif %}">Players</a>
         </nav>
 
         {% block content %}
