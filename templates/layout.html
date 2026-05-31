@@ -1,10 +1,10 @@
-{% macro link_name(name, eliminated=0) -%}<a {% if eliminated %}style="color: #cc4444;"{% endif %} href="https://speedrun.com/User/{{ name }}">{{ name }}</a>{% endmacro %}
+{% macro link_name(name, eliminated=0) -%}{% set player = Players.get_or_none(Players.id == name) %}<a {% if eliminated %}style="color: #cc4444;"{% endif %} href="https://www.speedrun.com/users/{{ player.speedruncom if player and player.speedruncom else name }}">{{ name }}</a>{% endmacro %}
 
 <html lang="en">
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="static/css/brackets-viewer.min.css" />
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.js"></script>
+        <script type="text/javascript" src="static/brackets-viewer.min.js"></script>
         <script src="static/brackets-manager.js"></script>
 
         <title>Wolfdash 5</title>
@@ -42,8 +42,6 @@
             <a href="/schedule" class="{% if url_for(request.endpoint) == '/schedule' %}active{% endif %}">Schedule</a>
             <a>-</a>
             <a href="/players" class="{% if url_for(request.endpoint) == '/players' %}active{% endif %}">Players</a>
-            <a>-</a>
-            <a href="/zelda" class="{% if url_for(request.endpoint) == '/zelda' %}active{% endif %}">Zelda</a>
         </nav>
 
         {% block content %}

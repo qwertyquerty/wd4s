@@ -8,6 +8,9 @@
             <th><a href="?sort=time" class="{{ 'selected' if sort == 'time' else '' }}">Time</a></th>
             <th><a href="?sort=date" class="{{ 'selected' if sort == 'date' else '' }}">Date</a></th>
             <th><a href="?sort=phase" class="{{ 'selected' if sort == 'phase' else '' }}">Phase</a></th>
+            <th><a href="?sort=zelda_cycles" class="{{ 'selected' if sort == 'zelda_cycles' else '' }}">Zelda Cycles</a></th>
+            <th><a href="?sort=gorge_void" class="{{ 'selected' if sort == 'gorge_void' else '' }}">Gorge Void</a></th>
+            <th><a href="?sort=goats_time" class="{{ 'selected' if sort == 'goats_time' else '' }}">Goats Time</a></th>
         </tr>
         {% for run in runs %}
         <tr>
@@ -25,6 +28,17 @@
             </td>
             <td>
                 {{ run.format_phase() }}
+            </td>
+            <td>
+                {{ run.zelda_cycles if run.zelda_cycles is not none else "-" }}
+            </td>
+            <td>
+                {% if run.gorge_void == 1 %}Success
+                {% elif run.gorge_void == 2 %}Fail
+                {% else %}-{% endif %}
+            </td>
+            <td>
+                {{ run.goats_time | round(3) if run.goats_time is not none else "-" }}
             </td>
         </tr>
         {% endfor %}

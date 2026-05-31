@@ -38,11 +38,17 @@ class BaseModel(Model):
 
 def format_time(time):
     return str(timedelta(seconds=time))
+
+def format_goats_time(t):
+    s = int(t)
+    ms = round((t - s) * 1000)
+    return f"{s}.{ms:03d}"
     
 
 class Pools(BaseModel):
     id = IntegerField()
     players = CharField()
+    name = CharField()
 
     def players_list(self):
         return [Players.get_or_none(Players.id == player) for player in self.players.split(",")]
@@ -63,6 +69,7 @@ class Players(BaseModel):
     twitch = CharField(32)
     flags = IntegerField()
     eliminated = IntegerField()
+    speedruncom = CharField(null=True)
 
     def runs(self, finished=False):
         if finished:
@@ -76,11 +83,16 @@ class Players(BaseModel):
         if key in cache: return cache[key]
 
         runs = list(self.runs(finished=True))
+        zelda_runs = [run.zelda() for run in runs if run.zelda()]
+        goats_runs = [run.goats_time for run in runs if run.goats_time is not None]
+        gorge_runs = [run.gorge_void for run in runs if run.gorge_void]
         stats = {
             "mean": int(sum([run.time for run in runs])/len(runs)) if len(runs) else None,
             "std": int(np.std([run.time for run in runs])) if (len(runs) > 1) else None,
             "completion": len(runs)/self.runs().count() if self.runs().count() else None,
-            "mean_zelda": sum([run.zelda() for run in runs if run.zelda()]) / len([run.zelda() for run in runs if run.zelda()]) if len([run.zelda() for run in runs if run.zelda()]) else None
+            "mean_zelda": sum(zelda_runs) / len(zelda_runs) if zelda_runs else None,
+            "mean_goats": sum(goats_runs) / len(goats_runs) if goats_runs else None,
+            "gorge_void_rate": gorge_runs.count(1) / len(gorge_runs) if gorge_runs else None,
         }
 
         stats["pbdiff"] = (stats["mean"] - self.pb) if stats["mean"] else None
@@ -150,7 +162,9 @@ class Players(BaseModel):
             "pb": lambda p: p[1].pb or float('infinity'),
             "std": lambda p: (p[0]["std"] or float('infinity'), p[1].pb or float('infinity')),
             "pbdiff": lambda p: (p[0]["pbdiff"] if p[0]["pbdiff"] is not None else float('infinity'), p[1].pb or float('infinity')),
-            "zelda": lambda p: (p[0]["mean_zelda"] if p[0]["mean_zelda"] is not None else float('infinity'))
+            "zelda": lambda p: (p[0]["mean_zelda"] if p[0]["mean_zelda"] is not None else float('infinity')),
+            "goats": lambda p: (p[0]["mean_goats"] if p[0]["mean_goats"] is not None else float('infinity')),
+            "gorge": lambda p: (-(p[0]["gorge_void_rate"] if p[0]["gorge_void_rate"] is not None else float('-infinity')))
         }
 
         return sorted([
@@ -165,8 +179,9 @@ class Runs(BaseModel):
     flags = IntegerField()
     phase = IntegerField()
     event = IntegerField()
-    zelda_swoops = IntegerField()
-    zelda_triangles = IntegerField()
+    zelda_cycles = IntegerField(null=True)
+    gorge_void = IntegerField(null=True)
+    goats_time = FloatField(null=True)
 
     @classmethod
     def get_seeding_runs(cls):
@@ -189,7 +204,7 @@ class Runs(BaseModel):
         return self.flags & RUN_FLAG_PB
 
     def zelda(self):
-        return self.zelda_triangles + self.zelda_swoops + 3 if (self.zelda_triangles is not None and self.zelda_swoops is not None) else None
+        return self.zelda_cycles
 
     @classmethod
     def completion_stats(cls):
@@ -237,11 +252,6 @@ def page_runs():
         )
 
     return render_template("runs.html", **globals(), runs=runs, sort=sort)
-
-@app.route("/zelda")
-def page_zelda():
-    runs = Runs.select().where(Runs.zelda_triangles != None).order_by((Runs.zelda_triangles+Runs.zelda_swoops).desc(), Runs.zelda_triangles.desc(), Runs.time.asc())
-    return render_template("zelda.html", **globals(), runs=runs)
 
 @app.route("/players")
 def page_players():

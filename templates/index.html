@@ -21,7 +21,7 @@
                         </div>
                         {% endfor %}
                         {% else %}
-                        {% for i in range(20) %}
+                        {% for i in range(22) %}
                         <div class="participant" data-participant-id="???" title="1">
                             <div class="name">
                                 <span>#{{ loop.index }} </span>???
@@ -29,7 +29,7 @@
                             <div class="result">
                                 -
                             </div>
-                        </div>     
+                        </div>
                         {% endfor %}
                         {% endif %}
                     </div>
@@ -39,60 +39,93 @@
     </section>
     <section class="bracket" style="display:inline-block;">
         <h2>Pooling Races</h2>
-        
-            {% for pool in Pools.select().order_by(Pools.id.asc()) %}
-                {% if loop.index0 % 4 == 0 %}<div class="rounds">{% endif %}
-                    <article class="round">
-                        <h3>Pool #{{ loop.index }}</h3>
-                        <div class="match">
-                            <div class="opponents">
-                                {% set lb = pool.leaderboard() %}
-                                {% if lb.count() %}
-                                    {% for run in lb %}
-                                    <div class="participant" data-participant-id="0">
-                                        <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
-                                    </div>
-                                    {% endfor %}
+
+        {% macro pool_article(pool) %}
+            <article class="round">
+                <h3>#{{ pool.id }} Pool {{ pool.name }}</h3>
+                <div class="match">
+                    <div class="opponents">
+                        {% set lb = pool.leaderboard() %}
+                        {% if lb.count() %}
+                            {% for run in lb %}
+                            <div class="participant" data-participant-id="0">
+                                <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for player in pool.players_list() %}
+                            <div class="participant" data-participant-id="0">
+                                <div class="name"><span></span>{{ player.id or "???" }}</div><div class="result">-</div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        {% endmacro %}
+
+        <div class="rounds">
+            {% for pool in Pools.select().where(Pools.id.in_([1,3,5,7])).order_by(Pools.id.asc()) %}
+                {{ pool_article(pool) }}
+            {% endfor %}
+            <article class="round">
+                <h3>LC Pool A</h3>
+                <div class="match" data-match-id="0" data-match-status="2">
+                    <div class="opponents">
+                        {% set lb = Pools(id=9).leaderboard() %}
+                        {% if lb.count() %}
+                            {% for run in lb %}
+                            <div class="participant" data-participant-id="0">
+                                <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for p in Pools.select().where(Pools.id.in_([1,3,5,7])).order_by(Pools.id.asc()) %}
+                            <div class="participant" data-participant-id="0" title="1">
+                                {% set run = p.run_from_rank(3) %}
+                                {% if run != None %}
+                                    <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
                                 {% else %}
-                                    {% for player in pool.players_list() %}
-                                    <div class="participant" data-participant-id="0">
-                                        <div class="name"><span></span>{{ player.id or "???" }}</div><div class="result">-</div>
-                                    </div>
-                                    {% endfor %}
+                                    <div class="name hint"><span> </span>#3 of pool {{ p.id }}</div><div class="result">-</div>
                                 {% endif %}
                             </div>
-                        </div>
-                    </article>
-                    {% if loop.index == Pools.select().count() %}
-                        <article class="round">
-                            <h3>Last Chance Pool</h3>
-                            <div class="match" data-match-id="0" data-match-status="2">
-                                <div class="opponents">
-                                    {% set lb = Pools(id=8).leaderboard() %}
-                                    {% if lb.count() %}
-                                        {% for run in lb %}
-                                        <div class="participant" data-participant-id="0">
-                                            <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
-                                        </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {% for pool in Pools.select().order_by(Pools.id.asc()) %}
-                                        <div class="participant" data-participant-id="0" title="1">
-                                            {% set run = pool.run_from_rank(3) %}
-                                            {% if run != None %}
-                                                <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
-                                            {% else %}
-                                                <div class="name hint"><span> </span>#3 of pool {{ pool.id }}</div><div class="result">-</div>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </article>
-                    {% endif %}
-                {% if (loop.index0) % 4 == 3 %}</div>{% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="rounds">
+            {% for pool in Pools.select().where(Pools.id.in_([2,4,6,8])).order_by(Pools.id.asc()) %}
+                {{ pool_article(pool) }}
             {% endfor %}
+            <article class="round">
+                <h3>LC Pool B</h3>
+                <div class="match" data-match-id="0" data-match-status="2">
+                    <div class="opponents">
+                        {% set lb = Pools(id=10).leaderboard() %}
+                        {% if lb.count() %}
+                            {% for run in lb %}
+                            <div class="participant" data-participant-id="0">
+                                <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for p in Pools.select().where(Pools.id.in_([2,4,6,8])).order_by(Pools.id.asc()) %}
+                            <div class="participant" data-participant-id="0" title="1">
+                                {% set run = p.run_from_rank(3) %}
+                                {% if run != None %}
+                                    <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
+                                {% else %}
+                                    <div class="name hint"><span> </span>#3 of pool {{ p.id }}</div><div class="result">-</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        </div>
     </section>
 </div>
 
@@ -113,6 +146,7 @@
                 "Pool 5 #1",
                 "Pool 6 #1",
                 "Pool 7 #1",
+                "Pool 8 #1",
                 "Pool 1 #2",
                 "Pool 2 #2",
                 "Pool 3 #2",
@@ -120,22 +154,26 @@
                 "Pool 5 #2",
                 "Pool 6 #2",
                 "Pool 7 #2",
-                "LC Pool #1",
-                "LC Pool #2"
+                "Pool 8 #2",
+                "LC-A #1",
+                "LC-B #1",
+                "LC-A #2",
+                "LC-B #2",
+                null, null, null, null, null, null,
+                null, null, null, null, null, null
             ],
             settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']},
         });
-        
+
         await window.bracketsManager.create.stage({
             tournamentId: 1,
             name: 'Redemption Bracket',
             type: 'double_elimination',
             seeding: [
-                "LC Pool #3",
-                "LC Pool #4",
-                "LC Pool #5",
-                "LC Pool #6",
-                "LC Pool #7",
+                "LC-A #3",
+                "LC-B #3",
+                "LC-A #4",
+                "LC-B #4",
                 "Pool 1 #4",
                 "Pool 2 #4",
                 "Pool 3 #4",
@@ -143,15 +181,24 @@
                 "Pool 5 #4",
                 "Pool 6 #4",
                 "Pool 7 #4",
+                "Pool 8 #4",
                 "Pool 1 #5",
                 "Pool 2 #5",
                 "Pool 3 #5",
-                "Pool 4 #5"
+                "Pool 4 #5",
+                "Pool 5 #5",
+                "Pool 6 #5",
+                "Pool 7 #5",
+                "Pool 8 #5",
+                "Pool 1 #6",
+                "Pool 2 #6",
+                null, null, null, null, null,
+                null, null, null, null, null
             ],
             settings: { grandFinal: 'double', seedOrdering: ['inner_outer', 'natural', 'reverse', 'natural']}
         });
 
-    {% for i in range(64) %}
+    {% for i in range(200) %}
     {% set race = (Runs.select().where(Runs.event == i, Runs.phase == 2) | list) %}
         {% if (race | length) == 2 %}
             if (window.bracketsManager.storage.data.participant[window.bracketsManager.storage.data.match[{{ i }}].opponent1.id].name == '{{ race[0].player }}') {
@@ -191,7 +238,7 @@
 
         {% endif %}
     {% endfor %}
-            
+
     let main_bracket = await window.bracketsManager.get.stageData(0);
 
     window.bracketsViewer.render({

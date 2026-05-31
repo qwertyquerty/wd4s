@@ -123,3 +123,11 @@ h1 {
 .hint {
     color: var(--hint-color);
 }
+
+#seeding .rounds {
+    align-items: flex-start;
+}
+
+.participant:has(.name.bye) {
+    opacity: 0.15;
+}

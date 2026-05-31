@@ -12,7 +12,9 @@
             <th><a href="?sort=pbdiff" class="{{ 'selected' if sort == 'pbdiff' else '' }}">Avg - PB</a></th>
             <th><a href="?sort=std" class="{{ 'selected' if sort == 'std' else '' }}">Race Variance</a></th>
             <th><a href="?sort=completion" class="{{ 'selected' if sort == 'completion' else '' }}">Completion</a></th>
-            <th><a href="?sort=zelda" cass="{{ 'selected' if sort == 'zelda' else '' }}">Avg Zelda</a></th>
+            <th><a href="?sort=zelda" class="{{ 'selected' if sort == 'zelda' else '' }}">Avg Zelda</a></th>
+            <th><a href="?sort=goats" class="{{ 'selected' if sort == 'goats' else '' }}">Avg Goats</a></th>
+            <th><a href="?sort=gorge" class="{{ 'selected' if sort == 'gorge' else '' }}">Gorge Void</a></th>
             <th><a href="?sort=odds" class="{{ 'selected' if sort == 'odds' else '' }}">Win Odds</a></th>
         </tr>
         {% for stats,player,twp in leaderboard %}
@@ -39,7 +41,13 @@
                 {{ ((stats["completion"])*100)|round|int|string + "%" if stats["completion"] != None else "-" }}
             </td>
             <td>
-                {{ (stats["mean_zelda"])|round(1) if stats["mean_zelda"] else "-" }}
+                {{ "%.1f" % stats["mean_zelda"] if stats["mean_zelda"] else "-" }}
+            </td>
+            <td>
+                {{ format_goats_time(stats["mean_goats"]) if stats["mean_goats"] != None else "-" }}
+            </td>
+            <td>
+                {{ "%.0f%%" % (stats["gorge_void_rate"] * 100) if stats["gorge_void_rate"] != None else "N/A" }}
             </td>
             <td>
                 {{ ((twp*100)|round(1)|string + "%") if twp != None else "-" }}
