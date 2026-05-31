@@ -127,7 +127,7 @@ class Players(BaseModel):
 
         for other in Players.select().where(Players.id != self.id, Players.eliminated != 1):
             o = other.stats()
-            pm = p_a_beats_b((s["mean"] if s["mean"] else 100000, s["std"] or 60), (o["mean"] if o["mean"] else 100000, o["std"] or 60))
+            pm = p_a_beats_b((s["mean"] if s["mean"] else 100000, s["std"] or 1800), (o["mean"] if o["mean"] else 100000, o["std"] or 1800))
 
             if pm is None: return None
 

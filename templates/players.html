@@ -50,7 +50,7 @@
                 {{ "%.0f%%" % (stats["gorge_void_rate"] * 100) if stats["gorge_void_rate"] != None else "N/A" }}
             </td>
             <td>
-                {{ ((twp*100)|round(1)|string + "%") if twp != None else "-" }}
+                {{ ((twp*100)|round(2)|string + "%") if twp != None else "-" }}
             </td>
         </tr>
         {% endfor %}
