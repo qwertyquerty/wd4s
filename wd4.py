@@ -40,9 +40,7 @@ def format_time(time):
     return str(timedelta(seconds=time))
 
 def format_goats_time(t):
-    s = int(t)
-    ms = round((t - s) * 1000)
-    return f"{s}.{ms:03d}"
+    return f"{t:.2f}"
     
 
 class Pools(BaseModel):
@@ -83,9 +81,10 @@ class Players(BaseModel):
         if key in cache: return cache[key]
 
         runs = list(self.runs(finished=True))
-        zelda_runs = [run.zelda() for run in runs if run.zelda()]
-        goats_runs = [run.goats_time for run in runs if run.goats_time is not None]
-        gorge_runs = [run.gorge_void for run in runs if run.gorge_void]
+        all_runs = list(self.runs(finished=False))
+        zelda_runs = [run.zelda() for run in all_runs if run.zelda()]
+        goats_runs = [run.goats_time for run in all_runs if run.goats_time is not None]
+        gorge_runs = [run.gorge_void for run in all_runs if run.gorge_void]
         stats = {
             "mean": int(sum([run.time for run in runs])/len(runs)) if len(runs) else None,
             "std": int(np.std([run.time for run in runs])) if (len(runs) > 1) else None,
