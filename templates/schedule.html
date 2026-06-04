@@ -13,7 +13,7 @@
         {% for race in Races.select().where(Races.timestamp > (time.time() - 14400)).order_by(Races.timestamp.asc()) %}
         <tr>
             <td style="color: var(--hint-color);">
-                {{ race.id|title }}
+                {{ race.id|title }}{% if race.id.startswith('pool') %} ({{ Pools.get_by_id(race.id.split(' ')[1]|int).name }}){% endif %}
             </td>
             <td>
                 {% for player in race.get_players() %}{% if loop.index != 1 %}, {% endif %}{{ link_name(player) }}{% endfor %}
@@ -38,7 +38,7 @@
         {% for race in Races.select().where(Races.timestamp < (time.time() - 14400)).order_by(Races.timestamp.asc()) %}
         <tr>
             <td style="color: var(--hint-color);">
-                {{ race.id|title }}
+                {{ race.id|title }}{% if race.id.startswith('pool') %} ({{ Pools.get_by_id(race.id.split(' ')[1]|int).name }}){% endif %}
             </td>
             <td>
                 {% for player in race.get_players() %}{% if loop.index != 1 %}, {% endif %}{{ link_name(player) }}{% endfor %}
