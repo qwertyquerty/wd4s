@@ -260,6 +260,10 @@ h2 {
     display: flex;
 }
 
+.runner-cards .player-name-wrap:hover .player-badges-popup {
+    display: none;
+}
+
 .badge-icon-sm {
     height: 20px;
     width: auto;
