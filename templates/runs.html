@@ -35,8 +35,8 @@
             <td>
                 {% if run.gorge_void is none %}-
                 {% elif run.gorge_void == 1 %}<span style="color: var(--win-color)">Success</span>
-                {% else %}<span style="color: var(--loss-color)">Fail</span>
-                {% endif %}
+                {% elif run.gorge_void == 0 %}<span style="color: var(--loss-color)">Fail</span>
+                {% else %}-{% endif %}
             </td>
             <td>
                 {{ run.goats_time | round(3) if run.goats_time is not none else "-" }}
