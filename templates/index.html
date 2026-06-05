@@ -13,7 +13,7 @@
                         {% for run in Runs.get_seeding_runs() %}
                         <div class="participant" data-participant-id="{{ run.player }}" title="1">
                             <div class="name">
-                                <span>#{{ loop.index }} </span>{{ run.player }}
+                                <span>#{{ loop.index }} </span>{{ link_name(run.player) }}
                             </div>
                             <div class="result">
                                 {{ run.format_time() }}
@@ -49,13 +49,13 @@
                         {% if lb.count() %}
                             {% for run in lb %}
                             <div class="participant" data-participant-id="0">
-                                <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                                <div class="name"><span>#{{ loop.index }} </span>{{ link_name(run.player) }}</div><div class="result">{{ run.format_time() }}</div>
                             </div>
                             {% endfor %}
                         {% else %}
                             {% for player in pool.players_list() %}
                             <div class="participant" data-participant-id="0">
-                                <div class="name"><span></span>{{ player.id or "???" }}</div><div class="result">-</div>
+                                <div class="name"><span></span>{{ link_name(player.id) if player else "???" }}</div><div class="result">-</div>
                             </div>
                             {% endfor %}
                         {% endif %}
@@ -76,7 +76,7 @@
                         {% if lb.count() %}
                             {% for run in lb %}
                             <div class="participant" data-participant-id="0">
-                                <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                                <div class="name"><span>#{{ loop.index }} </span>{{ link_name(run.player) }}</div><div class="result">{{ run.format_time() }}</div>
                             </div>
                             {% endfor %}
                         {% else %}
@@ -84,7 +84,7 @@
                             <div class="participant" data-participant-id="0" title="1">
                                 {% set run = p.run_from_rank(3) %}
                                 {% if run != None %}
-                                    <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
+                                    <div class="name"><span> </span>{{ link_name(run.player) }}</div><div class="result">-</div>
                                 {% else %}
                                     <div class="name hint"><span> </span>#3 of pool {{ p.id }}</div><div class="result">-</div>
                                 {% endif %}
@@ -107,7 +107,7 @@
                         {% if lb.count() %}
                             {% for run in lb %}
                             <div class="participant" data-participant-id="0">
-                                <div class="name"><span>#{{ loop.index }} </span>{{ run.player }}</div><div class="result">{{ run.format_time() }}</div>
+                                <div class="name"><span>#{{ loop.index }} </span>{{ link_name(run.player) }}</div><div class="result">{{ run.format_time() }}</div>
                             </div>
                             {% endfor %}
                         {% else %}
@@ -115,7 +115,7 @@
                             <div class="participant" data-participant-id="0" title="1">
                                 {% set run = p.run_from_rank(3) %}
                                 {% if run != None %}
-                                    <div class="name"><span> </span>{{ run.player }}</div><div class="result">-</div>
+                                    <div class="name"><span> </span>{{ link_name(run.player) }}</div><div class="result">-</div>
                                 {% else %}
                                     <div class="name hint"><span> </span>#3 of pool {{ p.id }}</div><div class="result">-</div>
                                 {% endif %}

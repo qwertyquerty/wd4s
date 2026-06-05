@@ -6,7 +6,7 @@
         <div class="column" id="zelda_cycle_hist"></div>
     </div>
     <div class="row">
-        <div class="column" id="zelda_cycle_scat"></div>
+        <div class="column" id="goats_time_hist"></div>
         <div class="column" id="run_completion_pie"></div>
     </div>
 
@@ -112,28 +112,21 @@
             displayModeBar: false
         });
 
-        Plotly.newPlot('zelda_cycle_scat', [{
-            y: [
-                {% for run in runs %}
-                    {% if run.zelda() != None %}
-                        {{ run.zelda() }},
-                    {% endif %}
-                {% endfor %}
-            ],
+        Plotly.newPlot('goats_time_hist', [{
             x: [
                 {% for run in runs %}
-                    {% if run.zelda() != None %}
-                        (new Date({{ run.time*1000 }})).toISOString(),
+                    {% if run.goats_time is not none %}
+                        {{ run.goats_time }},
                     {% endif %}
                 {% endfor %}
             ],
-            mode: 'markers',
-            type: 'scatter',
+            xbins: { size: 1 },
+            type: 'histogram',
             marker: {
-                color: '#DDAB54',
+                color: '#DDAB5411',
                 line: {
-                    color: "#DDAB54", 
-                    width: 3
+                    color: "#DDAB54",
+                    width: 1
                 }
             },
             insidetextfont: {
@@ -142,7 +135,7 @@
         }],
         {
             title: {
-                text: 'Zelda Cycle vs Run Time',
+                text: 'Goats Time Histogram',
                 font: {
                     size: 24,
                     color: '#d8e8ef'
@@ -150,8 +143,6 @@
             },
             xaxis: {
                 autorange: 'reversed',
-                type: 'date',
-                tickformat: '%H:%M:%S',
                 tickfont: {
                     size: 12,
                     color: '#d8e8ef'
@@ -161,9 +152,7 @@
                 tickfont: {
                     size: 12,
                     color: '#d8e8ef'
-                },
-                mode: 'markers',
-                dtick: 1
+                }
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)'

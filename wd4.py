@@ -41,6 +41,85 @@ def format_time(time):
 
 def format_goats_time(t):
     return f"{t:.2f}"
+
+def get_pb_race_players():
+    key = "pb_race_players"
+    if key in cache: return cache[key]
+    result = set(
+        run.player for run in
+        Runs.select(Runs.player).where(
+            Runs.flags.bin_and(RUN_FLAG_PB) != 0,
+            Runs.phase != PHASE_SEEDING
+        )
+    )
+    cache[key] = result
+    return result
+
+def get_top_run_players():
+    key = "top_run_players"
+    if key in cache: return cache[key]
+    runs = (Runs.select()
+            .where((Runs.flags.bin_and(RUN_FLAG_DNF)) == 0)
+            .order_by(Runs.time.asc()))
+    seen = []
+    for run in runs:
+        if run.player not in seen:
+            seen.append(run.player)
+        if len(seen) == 3:
+            break
+    while len(seen) < 3:
+        seen.append(None)
+    cache[key] = seen
+    return seen
+
+def get_fastest_player():
+    return get_top_run_players()[0]
+
+def get_second_fastest_player():
+    return get_top_run_players()[1]
+
+def get_third_fastest_player():
+    return get_top_run_players()[2]
+
+def get_gorge_player():
+    key = "gorge_player"
+    if key in cache: return cache[key]
+    runs = list(Runs.select().where(Runs.gorge_void.in_([1, 2])))
+    if not runs:
+        cache[key] = None
+        return None
+    from collections import defaultdict
+    stats = defaultdict(lambda: {'success': 0, 'total': 0})
+    for run in runs:
+        stats[run.player]['total'] += 1
+        if run.gorge_void == 1:
+            stats[run.player]['success'] += 1
+
+    def sort_key(player):
+        s = stats[player]
+        rate = s['success'] / s['total']
+        pb = (Players.get_or_none(Players.id == player) or type('', (), {'pb': float('inf')})()).pb
+        return (-rate, -s['total'], pb)
+
+    result = sorted(stats.keys(), key=sort_key)[0]
+    cache[key] = result
+    return result
+
+def get_goats_player():
+    key = "goats_player"
+    if key in cache: return cache[key]
+    r = Runs.select(Runs.player).where(Runs.goats_time.is_null(False)).order_by(Runs.goats_time.asc()).first()
+    result = r.player if r else None
+    cache[key] = result
+    return result
+
+def get_zelda_player():
+    key = "zelda_player"
+    if key in cache: return cache[key]
+    r = Runs.select(Runs.player).where(Runs.zelda_cycles.is_null(False)).order_by(Runs.zelda_cycles.desc()).first()
+    result = r.player if r else None
+    cache[key] = result
+    return result
     
 
 class Pools(BaseModel):
@@ -170,6 +249,27 @@ class Players(BaseModel):
             (player.stats(),player,player.tourney_win_prob()) for player in Players.select()
         ], key=keys[sort])
 
+
+class RunnerProfiles(BaseModel):
+    player = CharField(32, primary_key=True)
+    versions = CharField(null=True)
+    twitch = CharField(null=True)
+    sr_tenure = TextField(null=True)
+    fav_dungeon_sr = CharField(null=True)
+    fav_dungeon_casual = CharField(null=True)
+    fav_zelda = CharField(null=True)
+    other_games = TextField(null=True)
+    fav_ice_cream = TextField(null=True)
+    former_wr_holder = IntegerField(default=0)
+    wr_holder = IntegerField(default=0)
+    organizer = IntegerField(default=0)
+    former_wd_top3 = IntegerField(default=0)
+    former_rb_winner = IntegerField(default=0)
+
+    class Meta:
+        table_name = 'runner_profiles'
+
+
 class Runs(BaseModel):
     player = CharField(32)
     time = FloatField()
@@ -247,6 +347,23 @@ class ScriptNameMiddleware:
 
 app.wsgi_app = ScriptNameMiddleware(app.wsgi_app)
 
+app.jinja_env.globals.update(
+    Players=Players,
+    RunnerProfiles=RunnerProfiles,
+    Runs=Runs,
+    Pools=Pools,
+    Races=Races,
+    format_time=format_time,
+    format_goats_time=format_goats_time,
+    get_goats_player=get_goats_player,
+    get_zelda_player=get_zelda_player,
+    get_gorge_player=get_gorge_player,
+    get_pb_race_players=get_pb_race_players,
+    get_fastest_player=get_fastest_player,
+    get_second_fastest_player=get_second_fastest_player,
+    get_third_fastest_player=get_third_fastest_player,
+)
+
 @app.route("/")
 def page_index():
     return render_template("index.html", **globals())
@@ -267,10 +384,20 @@ def page_runs():
 @app.route("/players")
 def page_players():
     sort = request.args.get("sort", default="avg")
-
     leaderboard = Players.stats_leaderboard(sort)
-
     return render_template("players.html", **globals(), leaderboard=leaderboard, sort=sort)
+
+@app.route("/runners")
+def page_runners():
+    profiles = (RunnerProfiles
+                .select(RunnerProfiles, Players)
+                .join(Players, on=(RunnerProfiles.player == Players.id))
+                .order_by(Players.pb.asc()))
+
+    return render_template("runners.html", **globals(), profiles=profiles,
+                           goats_player=get_goats_player(),
+                           zelda_player=get_zelda_player(),
+                           gorge_player=get_gorge_player())
 
 @app.route("/stats")
 def page_stats():

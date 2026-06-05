@@ -16,7 +16,7 @@
                 {{ race.id|title }}{% if race.id.startswith('pool') %} ({{ Pools.get_by_id(race.id.split(' ')[1]|int).name }}){% endif %}
             </td>
             <td>
-                {% for player in race.get_players() %}{% if loop.index != 1 %}, {% endif %}{{ link_name(player) }}{% endfor %}
+                {% for player in race.get_players() %}{% if loop.index != 1 %}, {% endif %}{{ link_name(player.id) }}{% endfor %}
             </td>
             <td>
                 <div onload="this.innerText = new Date({{ race.timestamp }} * 1000).toLocaleString()"></div>
@@ -41,7 +41,7 @@
                 {{ race.id|title }}{% if race.id.startswith('pool') %} ({{ Pools.get_by_id(race.id.split(' ')[1]|int).name }}){% endif %}
             </td>
             <td>
-                {% for player in race.get_players() %}{% if loop.index != 1 %}, {% endif %}{{ link_name(player) }}{% endfor %}
+                {% for player in race.get_players() %}{% if loop.index != 1 %}, {% endif %}{{ link_name(player.id) }}{% endfor %}
             </td>
             <td>
                 {% if race.vod != None %}

@@ -101,8 +101,19 @@ h1 {
     font-weight: normal;
 }
 
+h2 {
+    font-family: hyliaserif;
+    font-size: 2em;
+}
+
 .brackets-viewer .participant .name {
     width: 70% !important;
+    overflow: visible !important;
+}
+
+.brackets-viewer .participant .name a {
+    color: #d8e8ef !important;
+    text-decoration: none;
 }
 
 .result {
@@ -128,6 +139,130 @@ h1 {
     align-items: flex-start;
 }
 
+.runner-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px 40px 40px;
+    justify-content: center;
+}
+
+.runner-card {
+    border: 1px solid var(--label-color);
+    border-radius: var(--match-border-radius);
+    padding: 14px 16px;
+    width: 300px;
+    background: var(--secondary-background);
+}
+
+.runner-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.version-tags {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.version-icon {
+    height: 30px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.9));
+}
+
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--secondary-background);
+    color: var(--font-color);
+    border: 1px solid var(--label-color);
+    border-radius: var(--match-border-radius);
+    padding: 2px 7px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+}
+
+.runner-profile-table {
+    width: 100%;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.runner-profile-table th,
+.runner-profile-table td {
+    border: none;
+    padding: 3px 6px;
+    font-size: 0.9em;
+    vertical-align: top;
+}
+
+.runner-profile-table th {
+    color: var(--hint-color);
+    white-space: nowrap;
+    font-weight: normal;
+    width: 1%;
+    text-align: left;
+}
+
+.runner-profile-table td {
+    text-align: right;
+}
+
 .participant:has(.name.bye) {
     opacity: 0.15;
+}
+
+.player-name-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.player-badges-popup {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--secondary-background);
+    border: 1px solid var(--label-color);
+    border-radius: var(--match-border-radius);
+    padding: 4px 8px;
+    gap: 5px;
+    align-items: center;
+    z-index: 100;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.player-name-wrap:hover .player-badges-popup {
+    display: flex;
+}
+
+.badge-icon-sm {
+    height: 20px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
 }

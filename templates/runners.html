@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <br><br>
+    <h2 style="text-align:center;">Runners</h2>
+    <div class="runner-cards">
+        {% for profile in profiles %}
+        {% set player = Players.get_by_id(profile.player) %}
+        <div class="runner-card">
+            <div class="runner-card-header">
+                {{ link_name(profile.player, player.eliminated) }}
+                <span class="version-tags">
+                    {% if profile.versions %}
+                        {% if 'GC' in profile.versions %}
+                        <span class="tooltip" data-tip="GameCube"><img src="{{ url_for('page_static', path='icons/gamecube.png') }}" class="version-icon"></span>
+                        {% endif %}
+                        {% if 'Wii' in profile.versions %}
+                        <span class="tooltip" data-tip="Wii"><img src="{{ url_for('page_static', path='icons/wii.png') }}" class="version-icon"></span>
+                        {% endif %}
+                        {% if 'HD' in profile.versions %}
+                        <span class="tooltip" data-tip="Wii U HD"><img src="{{ url_for('page_static', path='icons/wiiu.png') }}" class="version-icon"></span>
+                        {% endif %}
+                    {% endif %}
+                    {% if profile.wr_holder %}
+                    <span class="tooltip" data-tip="any% WR Holder"><img src="{{ url_for('page_static', path='icons/domrod.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.former_wr_holder %}
+                    <span class="tooltip" data-tip="Former any% WR Holder"><img src="{{ url_for('page_static', path='icons/domrod_un.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.organizer %}
+                    <span class="tooltip" data-tip="Organizer"><img src="{{ url_for('page_static', path='icons/master.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.former_wd_top3 %}
+                    <span class="tooltip" data-tip="Former WD Top 3"><img src="{{ url_for('page_static', path='icons/wolf.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.former_rb_winner %}
+                    <span class="tooltip" data-tip="Former RB Winner"><img src="{{ url_for('page_static', path='icons/wood.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.player == goats_player %}
+                    <span class="tooltip" data-tip="Fastest Goats Time"><img src="{{ url_for('page_static', path='icons/goat.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.player == zelda_player %}
+                    <span class="tooltip" data-tip="Most Zelda Cycles"><img src="{{ url_for('page_static', path='icons/zelda.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.player == gorge_player %}
+                    <span class="tooltip" data-tip="Best Gorge Void Consistency"><img src="{{ url_for('page_static', path='icons/portal.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.player in get_pb_race_players() %}
+                    <span class="tooltip" data-tip="PBd During a Race"><img src="{{ url_for('page_static', path='icons/agitha.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.player == get_fastest_player() %}
+                    <span class="tooltip" data-tip="Fastest Run Time"><img src="{{ url_for('page_static', path='icons/silver.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.player == get_second_fastest_player() %}
+                    <span class="tooltip" data-tip="2nd Fastest Run Time"><img src="{{ url_for('page_static', path='icons/orange.png') }}" class="version-icon"></span>
+                    {% endif %}
+                    {% if profile.player == get_third_fastest_player() %}
+                    <span class="tooltip" data-tip="3rd Fastest Run Time"><img src="{{ url_for('page_static', path='icons/purple.png') }}" class="version-icon"></span>
+                    {% endif %}
+                </span>
+            </div>
+            <table class="runner-profile-table">
+                {% if player.pb %}
+                <tr>
+                    <th>Personal Best</th>
+                    <td>{{ format_time(player.pb) if player.pb else "-" }}</td>
+                </tr>
+                {% endif %}
+                {% if profile.twitch %}
+                <tr>
+                    <th>Twitch</th>
+                    <td><a href="https://twitch.tv/{{ profile.twitch }}">{{ profile.twitch }}</a></td>
+                </tr>
+                {% endif %}
+                {% if profile.sr_tenure %}
+                <tr>
+                    <th>Running Since</th>
+                    <td>{{ profile.sr_tenure }}</td>
+                </tr>
+                {% endif %}
+                {% if profile.fav_dungeon_sr %}
+                <tr>
+                    <th>Fav Dungeon (SR)</th>
+                    <td>{{ profile.fav_dungeon_sr }}</td>
+                </tr>
+                {% endif %}
+                {% if profile.fav_dungeon_casual %}
+                <tr>
+                    <th>Fav Dungeon (Casual)</th>
+                    <td>{{ profile.fav_dungeon_casual }}</td>
+                </tr>
+                {% endif %}
+                {% if profile.fav_zelda %}
+                <tr>
+                    <th>Favorite Zelda</th>
+                    <td>{{ profile.fav_zelda }}</td>
+                </tr>
+                {% endif %}
+                {% if profile.other_games %}
+                <tr>
+                    <th>Other Games</th>
+                    <td>{{ profile.other_games }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

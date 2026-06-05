@@ -1,4 +1,9 @@
-{% macro link_name(name, eliminated=0) -%}{% set player = Players.get_or_none(Players.id == name) %}<a {% if eliminated %}style="color: #cc4444;"{% endif %} href="https://www.speedrun.com/users/{{ player.speedruncom if player and player.speedruncom else name }}">{{ name }}</a>{% endmacro %}
+{% macro link_name(name, eliminated=0) -%}
+{%- set player = Players.get_or_none(Players.id == name) -%}
+{%- set profile = RunnerProfiles.get_or_none(RunnerProfiles.player == name) -%}
+{%- set has_badges = profile -%}
+<span class="player-name-wrap"><a {% if eliminated %}style="color: #cc4444;"{% endif %} href="https://www.speedrun.com/users/{{ player.speedruncom if player and player.speedruncom else name }}">{{ name }}</a>{% if has_badges %}<span class="player-badges-popup">{% if profile.versions and 'GC' in profile.versions %}<img src="{{ url_for('page_static', path='icons/gamecube.png') }}" class="badge-icon-sm" title="GameCube">{% endif %}{% if profile.versions and 'Wii' in profile.versions %}<img src="{{ url_for('page_static', path='icons/wii.png') }}" class="badge-icon-sm" title="Wii">{% endif %}{% if profile.versions and 'HD' in profile.versions %}<img src="{{ url_for('page_static', path='icons/wiiu.png') }}" class="badge-icon-sm" title="Wii U HD">{% endif %}{% if profile.wr_holder %}<img src="{{ url_for('page_static', path='icons/domrod.png') }}" class="badge-icon-sm" title="WR Holder">{% endif %}{% if profile.former_wr_holder %}<img src="{{ url_for('page_static', path='icons/domrod_un.png') }}" class="badge-icon-sm" title="Former WR Holder">{% endif %}{% if profile.organizer %}<img src="{{ url_for('page_static', path='icons/master.png') }}" class="badge-icon-sm" title="Organizer">{% endif %}{% if profile.former_wd_top3 %}<img src="{{ url_for('page_static', path='icons/wolf.png') }}" class="badge-icon-sm" title="Former WD Top 3">{% endif %}{% if profile.former_rb_winner %}<img src="{{ url_for('page_static', path='icons/wood.png') }}" class="badge-icon-sm" title="Former RB Winner">{% endif %}{% if name == get_goats_player() %}<img src="{{ url_for('page_static', path='icons/goat.png') }}" class="badge-icon-sm" title="Fastest Goats Time">{% endif %}{% if name == get_zelda_player() %}<img src="{{ url_for('page_static', path='icons/zelda.png') }}" class="badge-icon-sm" title="Most Zelda Cycles">{% endif %}{% if name == get_gorge_player() %}<img src="{{ url_for('page_static', path='icons/portal.png') }}" class="badge-icon-sm" title="Best Gorge Void Consistency">{% endif %}{% if name in get_pb_race_players() %}<img src="{{ url_for('page_static', path='icons/agitha.png') }}" class="badge-icon-sm" title="PBd During a Race">{% endif %}{% if name == get_fastest_player() %}<img src="{{ url_for('page_static', path='icons/silver.png') }}" class="badge-icon-sm" title="Fastest Run Time">{% endif %}{% if name == get_second_fastest_player() %}<img src="{{ url_for('page_static', path='icons/orange.png') }}" class="badge-icon-sm" title="2nd Fastest Run Time">{% endif %}{% if name == get_third_fastest_player() %}<img src="{{ url_for('page_static', path='icons/purple.png') }}" class="badge-icon-sm" title="3rd Fastest Run Time">{% endif %}</span>{% endif %}</span>
+{%- endmacro %}
 
 <html lang="en">
     <head>
@@ -41,7 +46,9 @@
             <a>-</a>
             <a href="{{ url_for('page_schedule') }}" class="{% if request.endpoint == 'page_schedule' %}active{% endif %}">Schedule</a>
             <a>-</a>
-            <a href="{{ url_for('page_players') }}" class="{% if request.endpoint == 'page_players' %}active{% endif %}">Players</a>
+            <a href="{{ url_for('page_players') }}" class="{% if request.endpoint == 'page_players' %}active{% endif %}">Leaderboard</a>
+            <a>-</a>
+            <a href="{{ url_for('page_runners') }}" class="{% if request.endpoint == 'page_runners' %}active{% endif %}">Runners</a>
         </nav>
 
         {% block content %}
