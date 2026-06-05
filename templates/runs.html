@@ -33,9 +33,10 @@
                 {{ run.zelda_cycles if run.zelda_cycles is not none else "-" }}
             </td>
             <td>
-                {% if run.gorge_void == 1 %}Success
-                {% elif run.gorge_void == 2 %}Fail
-                {% else %}-{% endif %}
+                {% if run.gorge_void is none %}-
+                {% elif run.gorge_void == 1 %}<span style="color: var(--win-color)">Success</span>
+                {% else %}<span style="color: var(--loss-color)">Fail</span>
+                {% endif %}
             </td>
             <td>
                 {{ run.goats_time | round(3) if run.goats_time is not none else "-" }}
