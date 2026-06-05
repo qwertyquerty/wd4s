@@ -9,6 +9,10 @@
         <div class="column" id="goats_time_hist"></div>
         <div class="column" id="run_completion_pie"></div>
     </div>
+    <div class="row">
+        <div class="column" id="gorge_void_pie"></div>
+        <div class="column" id="run_vs_pb_scat"></div>
+    </div>
 
     <script>
         {% set runs = Runs.select() | list %}
@@ -213,6 +217,75 @@
         }, {
             displayModeBar: false
         });
+        Plotly.newPlot('run_vs_pb_scat', [{
+            x: [
+                {% for run in runs %}
+                    {% if not run.dnf() %}
+                        {% set player = Players.get_or_none(Players.id == run.player) %}
+                        {% if player and player.pb %}
+                            (new Date({{ player.pb * 1000 }})).toISOString(),
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            ],
+            y: [
+                {% for run in runs %}
+                    {% if not run.dnf() %}
+                        {% set player = Players.get_or_none(Players.id == run.player) %}
+                        {% if player and player.pb %}
+                            (new Date({{ run.time * 1000 }})).toISOString(),
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            ],
+            mode: 'markers',
+            type: 'scatter',
+            marker: {
+                color: '#DDAB54',
+                line: { color: '#DDAB54', width: 2 }
+            }
+        }], {
+            title: {
+                text: 'Run Time vs Personal Best',
+                font: { size: 24, color: '#d8e8ef' }
+            },
+            xaxis: {
+                title: { text: 'Personal Best', font: { color: '#a7a7a7' } },
+                autorange: 'reversed',
+                type: 'date',
+                tickformat: '%H:%M:%S',
+                tickfont: { size: 12, color: '#d8e8ef' }
+            },
+            yaxis: {
+                title: { text: 'Run Time', font: { color: '#a7a7a7' } },
+                autorange: 'reversed',
+                type: 'date',
+                tickformat: '%H:%M:%S',
+                tickfont: { size: 12, color: '#d8e8ef' }
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        }, { displayModeBar: false });
+
+        {% set gorge_success = runs | selectattr('gorge_void', 'equalto', 1) | list | length %}
+        {% set gorge_fail    = runs | selectattr('gorge_void', 'equalto', 0) | list | length %}
+        Plotly.newPlot('gorge_void_pie', [{
+            values: [{{ gorge_success }}, {{ gorge_fail }}],
+            labels: ['Success', 'Fail'],
+            type: 'pie',
+            marker: {
+                colors: ['#50b64922', '#de2c2622'],
+                line: { color: "#DDAB54", width: 1 }
+            },
+            insidetextfont: { color: "#d8e8ef" }
+        }], {
+            title: {
+                text: 'Gorge Void Consistency',
+                font: { size: 24, color: '#d8e8ef' }
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        }, { displayModeBar: false });
     </script>
     <br><br>
 {% endblock %}
