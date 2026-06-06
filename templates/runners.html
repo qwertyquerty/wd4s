@@ -102,6 +102,10 @@
                     <td>{{ profile.other_games }}</td>
                 </tr>
                 {% endif %}
+                <tr>
+                    <th>Fav Ice Cream</th>
+                    <td>{{ profile.fav_ice_cream if profile.player in pool_completed_players else "???" }}</td>
+                </tr>
             </table>
         </div>
         {% endfor %}

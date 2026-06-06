@@ -105,6 +105,14 @@ def get_gorge_player():
     cache[key] = result
     return result
 
+def get_pool_completed_players():
+    key = "pool_completed_players"
+    if key in cache: return cache[key]
+    runs = Runs.select(Runs.player, Runs.flags).where(Runs.phase == PHASE_POOLING)
+    result = {run.player for run in runs if not run.dnf()}
+    cache[key] = result
+    return result
+
 def get_goats_player():
     key = "goats_player"
     if key in cache: return cache[key]
@@ -397,7 +405,8 @@ def page_runners():
     return render_template("runners.html", **globals(), profiles=profiles,
                            goats_player=get_goats_player(),
                            zelda_player=get_zelda_player(),
-                           gorge_player=get_gorge_player())
+                           gorge_player=get_gorge_player(),
+                           pool_completed_players=get_pool_completed_players())
 
 @app.route("/stats")
 def page_stats():
