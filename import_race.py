@@ -86,7 +86,7 @@ def main():
     for entrant in entrants:
         rt_name = strip_discrim(entrant['user']['name'])
         status = entrant['status']['value']
-        finish_time = parse_duration(entrant.get('finish_time'))
+        finish_time = int(parse_duration(entrant.get('finish_time')) or 99999)
 
         player_id = players.get(rt_name.lower())
         if not player_id:
