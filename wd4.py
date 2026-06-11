@@ -305,63 +305,45 @@ class Players(BaseModel):
         if key in cache:
             return cache[key]
 
-        seeded = [p for p in cls._main_bracket_seeding() if p is not None]
-        n = len(seeded)
+        players = [p for p in cls._main_bracket_seeding() if p is not None]
 
-        if n == 0:
+        if not players:
             cache[key] = {}
             return {}
-        if n == 1:
-            result = {seeded[0].id: 1.0}
-            cache[key] = result
-            return result
 
-        stats_map = {p.id: p.stats() for p in seeded}
-        ids = [p.id for p in seeded]
+        stats_map = {p.id: p.stats() for p in players}
 
         def eff_mean(p):
             s = stats_map[p.id]
             return s["mean"] or (p.pb * 1.05 if p.pb else float('inf'))
 
         def eff_std(p):
-            return max(stats_map[p.id]["std"] or 240, 120)
+            return max(stats_map[p.id]["std"] or 180, 1)
 
-        wp = np.zeros((n, n))
-        for i in range(n):
-            ma, sa_std = eff_mean(seeded[i]), eff_std(seeded[i])
-            for j in range(n):
-                if i != j:
-                    wp[i, j] = p_a_beats_b((ma, sa_std), (eff_mean(seeded[j]), eff_std(seeded[j]))) or 0.5
+        N_ROUNDS = 6
 
-        size = 1 << max(n - 1, 1).bit_length()
+        scores = {}
+        for p in players:
+            others = sorted(
+                [q for q in players if q.id != p.id],
+                key=lambda q: eff_mean(q)
+            )
+            n = len(others)
+            score = 1.0
+            for k in range(N_ROUNDS):
+                start = int(k * n / N_ROUNDS)
+                end = int((k + 1) * n / N_ROUNDS)
+                bucket = others[start:end]
+                if not bucket:
+                    continue
+                rep_mean = sum(eff_mean(q) for q in bucket) / len(bucket)
+                rep_std = sum(eff_std(q) for q in bucket) / len(bucket)
+                prob = p_a_beats_b((eff_mean(p), eff_std(p)), (rep_mean, rep_std))
+                score *= prob if prob is not None else 0.5
+            scores[p.id] = score
 
-        def make_slots(sz):
-            if sz == 1:
-                return [1]
-            half = make_slots(sz // 2)
-            return [x for s in half for x in (s, sz + 1 - s)]
-
-        current = [({seed - 1: 1.0} if seed <= n else None) for seed in make_slots(size)]
-
-        while len(current) > 1:
-            next_round = []
-            for i in range(0, len(current), 2):
-                a, b = current[i], current[i + 1] if i + 1 < len(current) else None
-                if a is None:
-                    next_round.append(b)
-                elif b is None:
-                    next_round.append(a)
-                else:
-                    match = {}
-                    for ai, pa in a.items():
-                        for bj, pb in b.items():
-                            p = wp[ai, bj]
-                            match[ai] = match.get(ai, 0.0) + pa * pb * p
-                            match[bj] = match.get(bj, 0.0) + pa * pb * (1.0 - p)
-                    next_round.append(match)
-            current = next_round
-
-        result = {ids[i]: prob for i, prob in (current[0] or {}).items()}
+        total = sum(scores.values())
+        result = {pid: s / total for pid, s in scores.items()} if total > 0 else {}
         cache[key] = result
         return result
 
