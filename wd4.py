@@ -174,7 +174,7 @@ class Players(BaseModel):
         gorge_runs = [run.gorge_void for run in all_runs if run.gorge_void is not None]
         stats = {
             "mean": int(sum([run.time for run in runs])/len(runs)) if len(runs) else None,
-            "std": int(np.std([run.time for run in runs])) if (len(runs) > 1) else None,
+            "std": int(np.std([run.time for run in runs], ddof=1)) if (len(runs) > 1) else None,
             "completion": len(runs)/self.runs().count() if self.runs().count() else None,
             "mean_zelda": sum(zelda_runs) / len(zelda_runs) if zelda_runs else None,
             "mean_goats": sum(goats_runs) / len(goats_runs) if goats_runs else None,
@@ -199,43 +199,176 @@ class Players(BaseModel):
         cache[key] = p
         return p
     
-    def all_match_win_prob(self):
-        if self.eliminated:
-            return 0
-        
-        key = ("amwp", self.id)
+    @classmethod
+    def _get_pool_expected_ranking(cls, pool_id):
+        pool = Pools.get_or_none(Pools.id == pool_id)
 
-        if key in cache: return cache[key]
-        
-        p = 1
+        if pool is None:
+            # LC pools have no DB record; derive members from source pool #3 finishers
+            lc_sources = {9: [1, 3, 5, 7], 10: [2, 4, 6, 8]}
+            if pool_id not in lc_sources:
+                return []
+            pool_players = [
+                cls._get_pool_expected_ranking(src)[2]
+                for src in lc_sources[pool_id]
+                if len(cls._get_pool_expected_ranking(src)) >= 3
+            ]
+        else:
+            pool_players = [p for p in pool.players_list() if p]
 
-        s = self.stats()
+        pool_players = [p for p in pool_players if not p.eliminated]
 
-        for other in Players.select().where(Players.id != self.id, Players.eliminated != 1):
-            o = other.stats()
-            pm = p_a_beats_b((s["mean"] if s["mean"] else 100000, s["std"] or 180), (o["mean"] if o["mean"] else 100000, o["std"] or 180))
+        if not pool_players:
+            return []
 
-            if pm is None: return None
+        completed = {run.player: run.time
+                     for run in Runs.select().where(
+                         Runs.event == pool_id,
+                         Runs.phase == PHASE_POOLING,
+                         (Runs.flags.bin_and(RUN_FLAG_DNF)) == 0)}
+        dnfs = {run.player
+                for run in Runs.select().where(
+                    Runs.event == pool_id,
+                    Runs.phase == PHASE_POOLING,
+                    Runs.flags.bin_and(RUN_FLAG_DNF) != 0)}
 
-            p *= pm
-        
-        cache[key] = p
-        return p
-    
+        def sort_key(p):
+            if p.id in completed:
+                return (0, completed[p.id])
+            if p.id in dnfs:
+                return (2, 0.0)
+            s = p.stats()
+            return (1, s["mean"] or (p.pb * 1.05 if p.pb else float('inf')))
+
+        return sorted(pool_players, key=sort_key)
+
+    @classmethod
+    def _main_bracket_seeding(cls):
+        """Returns main bracket players in seed order.
+        Complete pools contribute their top 2; incomplete pools contribute all members."""
+        key = "main_bracket_seeding"
+        if key in cache:
+            return cache[key]
+
+        rankings = {i: cls._get_pool_expected_ranking(i) for i in range(1, 11)}
+
+        def is_complete(pool_id):
+            members = rankings[pool_id]
+            if not members:
+                return True
+            ran = Runs.select().where(
+                Runs.event == pool_id, Runs.phase == PHASE_POOLING
+            ).count()
+            return ran >= len(members)
+
+        complete = {i: is_complete(i) for i in range(1, 11)}
+
+        seeded = []
+        added = set()
+
+        def add(p):
+            if p is not None and p.id not in added:
+                seeded.append(p)
+                added.add(p.id)
+
+        for i in range(1, 9):   # Pool 1-8 #1
+            r = rankings[i]
+            add(r[0] if r else None)
+        for i in range(1, 9):   # Pool 1-8 #2
+            r = rankings[i]
+            add(r[1] if len(r) > 1 else None)
+        # LC-A #1, LC-B #1, LC-A #2, LC-B #2
+        for pool_id in [9, 10]:
+            r = rankings[pool_id]
+            add(r[0] if r else None)
+        for pool_id in [9, 10]:
+            r = rankings[pool_id]
+            add(r[1] if len(r) > 1 else None)
+
+        # For incomplete pools, append remaining members sorted by expected time
+        extra = []
+        for i in range(1, 11):
+            if not complete[i]:
+                for p in rankings[i]:
+                    if p and p.id not in added:
+                        extra.append(p)
+        extra.sort(key=lambda p: (p.stats()["mean"] or (p.pb * 1.05 if p.pb else float('inf'))))
+        for p in extra:
+            add(p)
+
+        cache[key] = seeded
+        return seeded
+
+    @classmethod
+    def _tourney_win_probs_seeded(cls):
+        key = "tourney_win_probs_seeded"
+        if key in cache:
+            return cache[key]
+
+        seeded = [p for p in cls._main_bracket_seeding() if p is not None]
+        n = len(seeded)
+
+        if n == 0:
+            cache[key] = {}
+            return {}
+        if n == 1:
+            result = {seeded[0].id: 1.0}
+            cache[key] = result
+            return result
+
+        stats_map = {p.id: p.stats() for p in seeded}
+        ids = [p.id for p in seeded]
+
+        def eff_mean(p):
+            s = stats_map[p.id]
+            return s["mean"] or (p.pb * 1.05 if p.pb else float('inf'))
+
+        def eff_std(p):
+            return max(stats_map[p.id]["std"] or 240, 120)
+
+        wp = np.zeros((n, n))
+        for i in range(n):
+            ma, sa_std = eff_mean(seeded[i]), eff_std(seeded[i])
+            for j in range(n):
+                if i != j:
+                    wp[i, j] = p_a_beats_b((ma, sa_std), (eff_mean(seeded[j]), eff_std(seeded[j]))) or 0.5
+
+        size = 1 << max(n - 1, 1).bit_length()
+
+        def make_slots(sz):
+            if sz == 1:
+                return [1]
+            half = make_slots(sz // 2)
+            return [x for s in half for x in (s, sz + 1 - s)]
+
+        current = [({seed - 1: 1.0} if seed <= n else None) for seed in make_slots(size)]
+
+        while len(current) > 1:
+            next_round = []
+            for i in range(0, len(current), 2):
+                a, b = current[i], current[i + 1] if i + 1 < len(current) else None
+                if a is None:
+                    next_round.append(b)
+                elif b is None:
+                    next_round.append(a)
+                else:
+                    match = {}
+                    for ai, pa in a.items():
+                        for bj, pb in b.items():
+                            p = wp[ai, bj]
+                            match[ai] = match.get(ai, 0.0) + pa * pb * p
+                            match[bj] = match.get(bj, 0.0) + pa * pb * (1.0 - p)
+                    next_round.append(match)
+            current = next_round
+
+        result = {ids[i]: prob for i, prob in (current[0] or {}).items()}
+        cache[key] = result
+        return result
+
     def tourney_win_prob(self):
-        key = ("twp", self.id)
-
-        if key in cache: return cache[key]
-
-        amwp = self.all_match_win_prob()
-
-        if amwp is None:
+        if self.eliminated:
             return None
-
-        p = amwp / sum([other.all_match_win_prob() for other in Players.select()])
-
-        cache[key] = p
-        return p
+        return Players._tourney_win_probs_seeded().get(self.id, None)
 
     @classmethod
     def stats_leaderboard(cls, sort):
@@ -243,7 +376,7 @@ class Players(BaseModel):
             "player": lambda p: p[1].id.lower(),
             "avg": lambda p: (p[0]["mean"] or float('infinity'), p[1].pb or float('infinity')),
             "rank": lambda p: (p[0]["mean"] or float('infinity'), p[1].pb or float('infinity')),
-            "odds": lambda p: (-(p[2] or float('-infinity')), not p[1].eliminated or float('infinity')),
+            "odds": lambda p: (1 if p[2] is None else 0, -(p[2] or 0)),
             "completion": lambda p: (-(p[0]["completion"] if p[0]["completion"] is not None else float('-infinity')), p[1].pb or float('infinity')),
             "pb": lambda p: p[1].pb or float('infinity'),
             "std": lambda p: (p[0]["std"] or float('infinity'), p[1].pb or float('infinity')),
