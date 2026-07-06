@@ -146,7 +146,7 @@
                 "Jeez",
                 "Ynohtz",
                 "morpha",
-                "NotableCass",
+                "Notablecass",
                 "An_D",
                 "UnknownPigeon",
                 "bdamja",
@@ -216,7 +216,7 @@
                     }
                 });
             }
-            else {
+            else if (window.bracketsManager.storage.data.participant[window.bracketsManager.storage.data.match[{{ i }}].opponent1.id].name == '{{ race[1].player }}') {
                 await window.bracketsManager.update.match({
                     id: {{ i }},
                     opponent2: {
@@ -232,6 +232,9 @@
                         {% endif %}
                     }
                 });
+            }
+            else {
+                console.log("ERROR {{ race[0].player }} {{ race[1].player }} " + window.bracketsManager.storage.data.participant[window.bracketsManager.storage.data.match[{{ i }}].opponent1.id].name + " " + window.bracketsManager.storage.data.participant[window.bracketsManager.storage.data.match[{{ i }}].opponent2.id].name);
             }
 
         {% endif %}
